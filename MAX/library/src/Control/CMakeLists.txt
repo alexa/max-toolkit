@@ -1,0 +1,11 @@
+target_sources(
+        MultiAgentExperience
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/Control.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlAccessKeys.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlInvoker.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlInvokerFactory.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlRegistry.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlRegistryFactory.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlStore.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/CurrentControls.cpp)
