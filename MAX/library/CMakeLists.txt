@@ -1,0 +1,5 @@
+target_include_directories(MultiAgentExperience PRIVATE include)
+add_subdirectory(src)
+if(BUILD_TESTS)
+    add_subdirectory(test)
+endif()

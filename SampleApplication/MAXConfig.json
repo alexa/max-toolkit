@@ -1,0 +1,82 @@
+// This JSON document presents all current options for controlling the MAX Sample Application.
+// Note that it is expected that there shall be at least one Agent and one Wakeword engine provided.
+{
+	// Runtime options reflect top-level general Application parameters.
+	"runtimeOptions":{
+		
+		// These settings control the minimum level of logging which the application shall produce at runtime.
+		// 
+		// Options are:
+		// NONE     : no log messages shall be printed.
+		// CRITICAL : critical messages reflect errors whcih are likely unrecoverable.
+		// ERROR    : error messages reflect errors which are likely recoverable.
+		// WARNING  : warning messages suggest something is wrong.
+		// INFO     : informational messages provide a general idea of functionality.
+		// DEBUG0   : debug0 messages provide some additional debug information.
+		// DEBUG1   : debug1 messages provide more detailed debug information.
+		// DEBUG2   : debug2 messages provide highly detailed debug information.
+		// DEBUG3   : debug3 messages provide maximally detailed debug information.
+
+		"logLevels":{
+
+			// The global value takes effect for all components, unless an override is provided below.
+			"global":"ERROR",
+
+			// Overrides may be given for different components. Options are as follows:
+			// application   : MAX Sample Application code
+			// MAX           : MAX Library code
+			// avssdk        : AVS SDK Libraries that may be used by this application, or its dependencies
+			// computerAgent : Computer Agent Library
+			"componentOverrides":{
+//				"application":"ERROR",
+//				"MAX":"ERROR"
+//				"avssdk":"NONE"
+//				"computerAgent":"DEBUG3"
+			}
+		}
+	},
+
+	// Options which control the audio format that will apply to all components.
+	"audioFormat":{
+		// The sample rate in hertz.
+		"sampleRateHz":16000,
+		// The number of microphone input channels.
+		"numInputChannels":1
+	},
+
+	// The agents the application shall instantiate. For each element, the application is expected to
+	// have code which shall perform the instantiation. Valid Agent names are:
+	// 'alexa'    : results in instantiation of the AVS SDK Alexa client
+	// 'computer' : results in instantiation of the MAX Toolkit Computer Agent
+	"agents":[
+		{
+			"name":<AGENT_NAME_STRING>,
+			"wakewords":[<AGENT_WAKEWORD_STRINGS>],
+			"configFilePath":<PATH_TO_AGENT_SPECIFIC_CONFIG_FILE>
+		}
+	],
+
+	// The wakeword engines the application shall instantiate. For each element, the application is expected to
+	// have code which shall perform the instantiation. 
+	// Valid engine names are:
+	// 'kitt.ai'    : results in instantiation of the Snowboy detector, as provided by Kitt.
+	// 'sensory'    : results in instantiation of the Sensory detector.
+	// 'amazonlite' : results in instantiation of the amazonlite detector, as provided by Amazon.
+	// createMethod may be either:
+	// 'AVS_SDK'    : results in the engine being created by the AVS SDK KWD library
+	// 'CUSTOM'     : results in the engine being created within the MAX Sample Application.
+	"wakewordEngines":[
+		{
+			"name":<WAKEWORD_ENGINE_NAME_STRING>,
+			"createMethod":<WAKEWORD_ENGINE_CREATE_METHOD_STRING>,
+			"wakewords":[<WAKEWORD_ENGINE_WAKEWORD_STRINGS>],
+			"resourceFolder":<PATH_TO_WAKEWORD_ENGINE_RESOURCE_FOLDER>
+		}
+	],
+
+	// Options which control the microphone.
+	"microphone":{
+		// Latency in seconds for reading audio data.
+		"suggestedLatencySeconds":0.150
+	}
+}

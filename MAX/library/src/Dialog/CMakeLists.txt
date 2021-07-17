@@ -1,0 +1,13 @@
+target_sources(
+        MultiAgentExperience
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/CombinedDialogStateHandlersLifecycleFactory.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogActivity.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogActivityRequest.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogArbitrator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogController.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogLifecycle.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogManagerFactory.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogRequest.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogRequestLifecycle.cpp)

@@ -1,0 +1,18 @@
+add_googletest(CoreTest
+    "${PRIVATE_INCLUDES}"
+    "MultiAgentExperience"
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/ActivityControlTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/ActivityManagerTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/ActivityRequestTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/ActivityTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/AgentTransferManagerTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/CombinedDialogStateHandlersLifecycleTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/ControlInvokerTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/ControlManagerTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/DialogLifecycleTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/DialogManagerTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/DialogRequestTransformerTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/DialogStateHandlerLifecycleTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/DialogStateHandlerRegistryTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Transformer/TransformerDialogRequestLifecycleTest.cpp
+)
