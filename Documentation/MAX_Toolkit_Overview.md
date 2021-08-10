@@ -15,7 +15,7 @@ MAX Toolkit also includes a [Glossary](Glossary.md), which defines terms relevan
 ## Overview of the MAX Library
 MAX Library exposes client-side APIs to enable control of multiple Agents. These APIs enable developers to coordinate multi-agent experiences both visually and audibly, implement client-side\* Universal Device Commands (UDCs) with minimal data shared between agents, and supports client-side\* Agent Transfer experiences between agents. It is the responsibility of the agent-makers and device-makers to use the MAX Library APIs to provide the optimal multi-agent experience.
 
-\*: *At this time, cloud support for Universal Device Commands and Agent Transfers is not supported by the Alexa Voice Service.*
+\* *At this time, cloud support for Universal Device Commands and Agent Transfers is not supported by the Alexa Voice Service.*
 
 The diagram below illustrates the interactions between Agents, Device applications, and the MAX Library. The Device application represents the software owned by a Device-maker to initialize the MAX Library and Agents. The Multi-Agent Sample Application is a concrete example of a Device application. Through the use of MAX Library, Agent experiences are coordinated through the use of common focus and activity managers. The Device application is responsible for rendering these experiences and handling user input. Both Agents and the Device application make calls to and from the MAX Library. The Device application also makes calls to Agents for operations that do not require use of the MAX Library. For example, handling a button which triggers a specific Agent’s feature.
 
