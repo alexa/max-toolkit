@@ -268,7 +268,9 @@ The Attention System is the combination of all visual and audible cues presented
 
 ### Universal Device Commands
 
- Universal Device Commands (UDCs) are those commands that a customer may use with any compatible agent to control certain device functions, even if the agent was not used to initiate the experience.
+Universal Device Commands (UDCs) are those commands that a customer may use with any compatible agent to control certain device functions, even if the agent was not used to initiate the experience.
+
+As of the release of this document, Alexa Voice Service does not support UDCs, but the MAX Sample Application implements a few client-side only UDCs.
 
  *Example:*
 
@@ -286,10 +288,6 @@ Computer supports the “Stop” UDC for several Alexa operations. They are:
 * Setting a timer
 * Setting an alarm
 * Setting a reminder
-
-
-As of the release of this document, Alexa Voice Service does not support UDCs.
-
 
 ### Agent Transfer
 
