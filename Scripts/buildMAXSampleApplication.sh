@@ -165,8 +165,8 @@ then
     git clone --depth 1 https://github.com/Kitt-AI/snowboy.git
     cd $SNOWBOY_SRC_DIR
     git checkout c9ff036e2ef3f9c422a3b8c9a01361dbad7a9bd4
-    cp -r alexa/* resources/
-    cp -r alexa/alexa-avs-sample-app/* resources/
+    cp -r resources/alexa/* resources/
+    cp -r resources/alexa/alexa-avs-sample-app/* resources/
     echo "Installing Kitt.AI dependency lib-atlas-dev..."
     sudo -S apt -y install libatlas-base-dev <<<"$password"
     announce_success "Kitt.AI Snowboy wakeword engine succesfully downloaded"
