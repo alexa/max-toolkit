@@ -153,6 +153,27 @@ announce_success "PortAudio succesfully downloaded and built"
 
 ###########################################################################################################
 
+# Download Snowboy
+
+if $SNOWBOY_ENABLED
+then
+    echo "Downloading Kitt.AI Snowboy wakeword engine..."
+    if [ ! -d $THIRD_PARTY_DIR ]; then
+        mkdir -p $THIRD_PARTY_DIR
+    fi
+    cd $THIRD_PARTY_DIR
+    git clone --depth 1 https://github.com/Kitt-AI/snowboy.git
+    cd $SNOWBOY_SRC_DIR
+    git checkout c9ff036e2ef3f9c422a3b8c9a01361dbad7a9bd4
+    cp -r alexa/* resources/
+    cp -r alexa/alexa-avs-sample-app/* resources/
+    echo "Installing Kitt.AI dependency lib-atlas-dev..."
+    sudo -S apt -y install libatlas-base-dev <<<"$password"
+    announce_success "Kitt.AI Snowboy wakeword engine succesfully downloaded"
+fi
+
+###########################################################################################################
+
 # Build AVS SDK
 
 echo "Checking out AVS Device SDK v1.23.0"
@@ -171,13 +192,25 @@ echo "Building AVS SDK in $AVS_SDK_BUILD_DIR"
 
 cd $AVS_SDK_BUILD_DIR
 
-cmake $AVS_SDK_SRC_DIR \
- -DPORTAUDIO=ON \
- -DPORTAUDIO_LIB_PATH=$PORTAUDIO_DIR/lib/.libs/libportaudio.a \
- -DPORTAUDIO_INCLUDE_DIR=$PORTAUDIO_DIR/include \
- -DGSTREAMER_MEDIA_PLAYER=ON \
- -DMAX_LIB_PATH=$MAX_LIB_BUILD_DIR/libMultiAgentExperience.so \
- -DMAX_INCLUDE_DIR=$MAX_LIB_SRC_DIR/include
+AVS_DEVICE_SDK_CMAKE_FLAGS=(
+ "-DMultiAgentExperience_DIR=$MAX_LIB_BUILD_DIR"
+ "-DPORTAUDIO=ON"
+ "-DPORTAUDIO_LIB_PATH=$PORTAUDIO_DIR/lib/.libs/libportaudio.a"
+ "-DPORTAUDIO_INCLUDE_DIR=$PORTAUDIO_DIR/include"
+ "-DGSTREAMER_MEDIA_PLAYER=ON"
+ "-DMAX_LIB_PATH=$MAX_LIB_BUILD_DIR/libMultiAgentExperience.so"
+ "-DMAX_INCLUDE_DIR=$MAX_LIB_SRC_DIR/include"
+)
+
+if $SNOWBOY_ENABLED
+then
+  AVS_DEVICE_SDK_CMAKE_FLAGS+=( "-DKITTAI_KEY_WORD_DETECTOR=ON" )
+  AVS_DEVICE_SDK_CMAKE_FLAGS+=( "-DKITTAI_KEY_WORD_DETECTOR_LIB_PATH=${SNOWBOY_SRC_DIR}/lib/rpi/libsnowboy-detect.a" )
+  AVS_DEVICE_SDK_CMAKE_FLAGS+=( "-DKITTAI_KEY_WORD_DETECTOR_INCLUDE_DIR=${SNOWBOY_SRC_DIR}/include" )
+fi
+
+
+cmake $AVS_SDK_SRC_DIR "${AVS_DEVICE_SDK_CMAKE_FLAGS[@]}"
 
 echo "Building and Installing AVS SDK to /usr/local/ ..."
 
@@ -222,23 +255,6 @@ cmake $COMPUTER_AGENT_SRC_DIR \
 make -j $MAKE_THREADS_NUM
 
 announce_success "Computer agent succesfully built and installed"
-
-###########################################################################################################
-
-# Download Snowboy
-
-if $SNOWBOY_ENABLED
-then
-    echo "Downloading Kitt.AI Snowboy wakeword engine..."
-    if [ ! -d $THIRD_PARTY_DIR ]; then
-        mkdir -p $THIRD_PARTY_DIR
-    fi
-    cd $THIRD_PARTY_DIR
-    git clone --depth 1 https://github.com/Kitt-AI/snowboy.git
-    echo "Installing Kitt.AI dependency lib-atlas-dev..."
-    sudo -S apt -y install libatlas-base-dev <<<"$password"
-    announce_success "Kitt.AI Snowboy wakeword engine succesfully downloaded"
-fi
 
 ###########################################################################################################
 
