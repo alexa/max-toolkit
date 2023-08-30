@@ -1,0 +1,18 @@
+add_subdirectory(FocusManager)
+target_sources(
+        MultiAgentExperience
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/Activity.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityLifecycle.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityManagerFactory.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityRequest.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityRequestBuffer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityRequestLifecycle.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ChannelToActivityObserver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/CurrentActivities.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/CurrentActivityRequests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/FocusManagerActivityChannels.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/LoggingActivityTracker.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivitySnapshot.cpp
+)

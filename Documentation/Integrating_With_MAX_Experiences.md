@@ -4,25 +4,23 @@
 
 An Experience is a representation of the state of an Actor which is shared with the Device. A person being in a call with another person is an example of an Experience. The Device, with support from the Actor, chooses how to render these Experiences (e.g. activating or changing an LED ring color). When one or more Agents have multiple Experiences at the same time, the Device also chooses how to represent them together. There is a lot of flexibility on what these Experiences are for each Agent and how the Device decides to render them.
 
-An `ExperienceControllerInterface` is used to set active ExperienceIdentifiers. Like access to other MAX Library APIs, an `ExperienceControllerInterface` is only available to Actors through an active Dialog or Activity. Each `ExperienceControllerInterface` can be used to start and end a single Experience at a time.
+An `ExperienceControllerInterface` is used to set active ExperienceIds. Like access to other MAX Library APIs, an `ExperienceControllerInterface` is only available to Actors through an active Dialog or Activity. Each `ExperienceControllerInterface` can be used to start and end a single Experience at a time.
 
-Agents and the Device are expected to share the enumeration of ExperienceIdentifiers that will be used for the Actor. Each identifier takes a string, and can be any non-empty value. There are well known identifiers, namely ‘listening’, ‘thinking’, and ‘speaking’ (see Experiences and Dialogs section for more detail on these well known values). The Device should determine how it will render each defined Experience for each Agent. How the Device does this is covered in detail in the Experience Rendering section. The Agents responsibility is merely to start and end the right Experiences when shown to the user.
+Agents and the Device are expected to share the enumeration of ExperienceIds that will be used for the Actor. Each identifier takes a string, and can be any non-empty value. There are well known identifiers, namely ‘listening’, ‘thinking’, and ‘speaking’ (see Experiences and Dialogs section for more detail on these well known values). The Device should determine how it will render each defined Experience for each Agent. How the Device does this is covered in detail in the Experience Rendering section. The Agents responsibility is merely to start and end the right Experiences when shown to the user.
 
 ### Experiences and Activities
 
-When an `ActivityHandlerInterface::onReady` is called, it is given an `ExperienceControllerInterface`. Any number of Experiences may be started and ended with the controller until the onStop callback is called for the Activity. Like other APIs bound to an Activity lifecycle, the controller may only be used to start Experiences for the associated Activity. In addition when the Activity is stopped, any Experiences started through the controller will be automatically ended.
+When an `ActivityHandlerInterface::onGranted` is called, it is given an `ExperienceControllerInterface`. Any number of Experiences may be started and ended with the controller until the onStop callback is called for the Activity. Like other APIs bound to an Activity lifecycle, the controller may only be used to start Experiences for the associated Activity. In addition when the Activity is stopped, any Experiences started through the controller will be automatically ended.
 
 ### Experience and Dialogs
 
-Dialogs are a special case for Experiences because they automatically start and end Experiences in LISTENING and THINKING state. This is done to strongly enforce the Multi-Agent Design Guide suggesting these states should minimally be shown to customers. During these states the Dialog is not given an `ExperienceControllerInterface`, and instead the well known `ExperienceIdentifier::LISTENING` and `ExperienceIdentifier::THINKING` are started automatically.
-
-SPEAKING state has no restriction, and `SpeechHandlerInterface::onStartSpeaking` will be started with the previous experience active. For example if the Dialog was in LISTENING, SPEAKING will start with `ExperienceIdentifier::LISTENING` active (if the Dialog is started in SPEAKING there will be no Experience set). Leaving the Experiences started is important, it ensures the transition between the previous Experience and any Experience you want to set in SPEAKING has no gap between them. If there is a latency gap there may be a brief moment when a lower priority Experience will be incorrectly exposed which can cause customer confusion. MAX does not start `ExperienceIdentifier::SPEAKING` for the SPEAKING state automatically, as much more flexibility on different types or responses are expected for Agents (for example maybe you want a different experience when speaking the news than when answering a question). If your Agent does not have multiple types of responses, using the well known `ExperienceIdentifier::SPEAKING` is recommended, but also not required.
+Dialogs are a special case for Experiences because they automatically start and end Experiences in LISTENING, THINKING and SPEAKING states. This is done to strongly enforce the Multi-Agent Design Guide suggesting these states should minimally be shown to customers. During these states the Dialog is not given an `ExperienceControllerInterface`, and instead the well known `ExperienceId::LISTENING`, `ExperienceId::THINKING` and `ExperienceId::SPEAKING` are started automatically.
 
 Since the `ExperienceControllerInterface` is bound to the Dialog, any Experience started will automatically be ended when the Dialog is finished.
 
 ### Handling Multiple Simultaneous Experiences
 
-Since a Dialog and multiple Activities are possibly active at any time, there may be multiple Experiences active at the same time as well. The Device is responsible for rendering the Experiences correctly in these cases. However what can an Agent expect for their Experiences in this use case? All active Experiences are always given to the Device for rendering. However they may not be able to render all of them given their Devices UX. The Device is required to render the primary Experience for the customer, and can optionally render the remaining Experiences in some way. The ‘primary’ Experience is determined the same way for Experiences as it is for Dialogs, Activities, and Controls. An Experience started for a Dialog is the highest priority, then an experience for a COMMUNICATION Activity is higher than an ALERTS Activity, which in turn, is higher than a CONTENT Activity.
+Since a Dialog and multiple Activities are possibly active at any time, there may be multiple Experiences active at the same time as well. The Device is responsible for rendering the Experiences correctly in these cases. However what can an Agent expect for their Experiences in this use case? All active Experiences are always given to the Device for rendering. However they may not be able to render all of them given their Devices UX. The Device is required to render the primary Experience for the customer, and can optionally render the remaining Experiences in some way. The ‘primary’ Experience is determined the same way for Experiences as it is for Dialogs, Activities, and Controls. An Experience started for a Dialog is the highest priority, followed by the Experiences for Activities. The priority order for Experiences of Activities is: COMMUNICATION > ALERTS > NOTIFICATIONS > CONTENT.
 
  
 ## Experience Rendering
@@ -41,12 +39,12 @@ It is up to the Device manufacturer and Agent developers to coordinate which Age
 
 #### Implementing an Experience Observer
 
-The device application component responsible for managing the device attention system should implement the ExperienceObserverInterface interface (Appendix B: Code 1).  This interface declares a callback void onExperienceChange(const std::vector<Experience>& experiences) which will be called by the MAX Library whenever the list of active experiences change. The MAX Library handles gathering all Agent user experience requests and provides the list of active Experiences in priority order, where the first Experience in the list is highest priority and must be rendered if the device is has the capability to do so, and any subsequent experiences in the list may be rendered if the Device UX Capabilities allow it. For example, the first experience in the list might be an Agent Speaking experience, which should be rendered if possible, and the second experience might be a “music playing” experience which is optional to be rendered if the device is capable. Agent Listening and Speaking experiences will always be the highest priority experiences presented, and are the most important for the device to render.
+The device application component responsible for managing the device attention system should implement the ExperienceObserverInterface interface (Appendix B: Code 1).  This interface declares a callback `void onExperienceChange(const std::vector<Experience>& experiences)` which will be called by the MAX Library whenever the list of active experiences change. The MAX Library handles gathering all Agent user experience requests and provides the list of active Experiences in priority order, where the first Experience in the list is highest priority and must be rendered if the device is has the capability to do so, and any subsequent experiences in the list may be rendered if the Device UX Capabilities allow it. For example, the first experience in the list might be an Agent Speaking experience, which should be rendered if possible, and the second experience might be a “music playing” experience which is optional to be rendered if the device is capable. Agent Listening and Speaking experiences will always be the highest priority experiences presented, and are the most important for the device to render.
 
 The Experience objects (Appendix B: Code 0) in the active experience list are made up of three parts:
 1. The Actor identifier – identifies the source of the experience and uniquely identifies either an agent or the device application.
-1. The Experience identifier - identifies an experience that is unique among all other experiences provided by that actor. Some identifiers are common such as the ‘listening’ and ‘thinking’ experiences (defined as common experiences in MultiAgentExperience/Experience/ExperienceIdentifier.h) which are required for agent’s to publish during dialogs. An actor may also define and publish any number of custom experiences, it is up to the device application and the Agent implementation to coordinate which experiences will published and what sort of UX the device will render.
-1. The Session identifier – identifies the session which produced this experience. Only one experience can be active per session at a time, and recognizing when a session experience is replaced, or all experiences for the session are removed, give opportunities for the device application to also represent transition between experiences.
+2. The Experience identifier - identifies an experience that is unique among all other experiences provided by that actor. Some identifiers are common such as the ‘listening’ and ‘thinking’ experiences (defined as common experiences in MultiAgentExperience/Experience/ExperienceId.h) which are required for agent’s to publish during dialogs. An actor may also define and publish any number of custom experiences, it is up to the device application and the Agent implementation to coordinate which experiences will published and what sort of UX the device will render.
+3. The Session identifier – identifies the session which produced this experience. Only one experience can be active per session at a time, and recognizing when a session experience is replaced, or all experiences for the session are removed, give opportunities for the device application to also represent transition between experiences.
 
 Important: The device application should return quickly from the onExperienceChange callback. Any long running or blocking function calls should be passed off to a different thread to allow the MAX Library to unblock. The callback may also be called from an arbitrary thread, do not assume it is called from the same thread that instantiated the MAX components.
 
@@ -82,16 +80,16 @@ public:
 
         auto& experience = experiences.front();
         if (experience.agentName == "alexa") {
-            if (experience.identifier == ExperienceIdentifier::LISTENING) {
+            if (experience.identifier == ExperienceId::LISTENING) {
                 myLEDRing->enable(ledRing::color::BLUE, ledRing::animation::SOLID);
-            } else if (experience.identifier == ExperienceIdentifier::RESPONDING) {
+            } else if (experience.identifier == ExperienceId::SPEAKING) {
                 myLEDRing->enable(
                     ledRing::color::BLUE, ledRing::animation::FLASHING);
             }
-        } else if (experience.agentName == "computer") {
-            if (experience.identifier == ExperienceIdentifier::LISTENING) {
+        } else if (experience.agentName == "exampleAgent") {
+            if (experience.identifier == ExperienceId::LISTENING) {
                 myLEDRing->enable(ledRing::color::GREEN, ledRing::animation::SOLID);
-            } else if (experience.identifier == ExperienceIdentifier::RESPONDING) {
+            } else if (experience.identifier == ExperienceId::SPEAKING) {
                 myLEDRing->enable(
                     ledRing::color::GREEN, ledRing::animation::FLASHING);
             }
@@ -110,9 +108,9 @@ public:
     void onExperienceChange(const std::vector<Experience>& experiences) override {
         auto findFirstInteraction = [](const Experience& experience) {
             return (
-                experience.identifier == ExperienceIdentifier::LISTENING ||
-                experience.identifier == ExperienceIdentifier::RESPONDING ||
-                experience.identifier == ExperienceIdentifier::THINKING);
+                experience.identifier == ExperienceId::LISTENING ||
+                experience.identifier == ExperienceId::SPEAKING ||
+                experience.identifier == ExperienceId::THINKING);
         };
 
         // Find and render the first interaction in the experience list,
@@ -125,7 +123,7 @@ public:
         }
 
         auto findFirstMusic = [](const Experience& experience) {
-            return (experience.identifier == ExperienceIdentifier("music"));
+            return (experience.identifier == ExperienceId("music"));
         };
 
         // Find and render the first music experience in the experience list,
@@ -142,7 +140,7 @@ public:
 
 # Appendix B: Code References
 ## Code 0: MultiAgentExperience/Experience/Experience.h
-```
+```C++
 namespace multiAgentExperience {
 namespace experience {
 struct Experience {

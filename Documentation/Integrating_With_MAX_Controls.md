@@ -6,7 +6,7 @@ A Control is an action with a `ControlType` matching a supported Universal Devic
 * Register actions for other Agents to access for UDCs
 * Invoked when a user request is recognized as a UDC request
 
-They also contain the only data shared from MAX Library to other Agents when making voice requests. Specifically the `ControlType` of all currently available Controls are shared with an Agent when in the LISTENING state of a Dialog. This set of `ControlType`s must be the only data necessary for your speech recognition to evaluate if the user request was for your Agent own features, or for your Agent to take action on an available UDC.
+They also contain the only data shared from MAX Library to other Agents when making voice requests. Specifically the `ControlType` of all currently available Controls are shared with an Agent just before the LISTENING state of a Dialog. This set of `ControlType`s must be the only data necessary for your speech recognition to evaluate if the user request was for your Agent own features, or for your Agent to take action on an available UDC.
 
 Access to Control APIs are restricted to Actors which have active Dialogs and Activities in certain states. These restrictions are always in place to help the developer meet the requirements in the Multi-Agent Design Guide Version.
 
@@ -17,6 +17,9 @@ The Control is a simple wrapper around an action and a `ControlType`. The action
 
 ### ControlRegistryInterface
 The `ControlRegistryInterface` is used to register a set of `Control`s which impact a given Activity or Dialog. These use cases are explained in detail in the **Universal Device Commands** section. The registry has a single API `update(std::set<Control>)`. The set contains a single `Control` per `ControlType`. The registry can be used to update the available `Control`s any number of times, and completely replaces any previously registered `Control`s each time. This API should only ever be used to register `Control`s which impact the Activity or Dialog which was used to get the registry. If it is used to register a `Control` outside of the current lifecycle, the `Control` may be potentially deregistered before or after it should be. This is because the `ControlRegistryInterface` is bound to the lifecycle which created it. Any `Control`s still registered when the Activity or Dialog is finished will automatically be deregistered. This automatic deregistration is convenient, but update can be used to set an empty set at any time to manually deregister. Once the associated lifecycle is finished, the registry will no longer make `Control`s available for other Agents and should be discarded.
+
+### ControlReceiverInterface
+The `ControlReceiverInterface` is used to pass available `Control`s to the Agent when a Dialog is granted and just before it is set to LISTENING state.
 
 ### DialogController Control Invocation
 The ability to invoke `Control`s is limited to Agents with an active Dialog, and therefore access to a `DialogControllerInterface`. All of the detail for how to request a Dialog and use it for UDCs can be found between the **Universal Device Commands** section. When either `DialogControllerInterface::invokeControlAndStartSpeaking(ControlType)` or `DialogControllerInterface::stopAndInvokeControl(ControlType)` are used the same thing happens. The given `ControlType` is checked against the registered `Control`s. If there are multiple `Control`s with the same `ControlType`, the conflict is always resolved by invoking the highest priority first.
@@ -31,7 +34,7 @@ The Multi-Agent Design Guide (MADG) defines Universal Device Commands (UDCs) as:
 
 For recognizing UDCs during speech requests, MAX Library will give an Agent:
 
-* A set of available Controls across all Agents during a Dialog
+* A set of available Controls, registered for active Activities, from other Agents, during a Dialog
 * A registry to make Controls available to other Agents during their requests
 * Options to invoke Controls once user speech requests have been recognized
 
@@ -60,7 +63,7 @@ The given registry is also bound to the lifecycle of this SPEAKING state. Once t
 
 
 ### Accessing All Agents’ Active Controls
-Recognizing a voice command as a UDC command requires some state about what is happening across the Agents on a Device. To support this the MAX library makes the ControlTypes of UDCs available during a voice request available to Agents. It does this by limiting access to this state to a Dialog in the LISTENING state. They are delivered in the `onStartListening` callback of the `ListeningStateHandlerInterface`.
+Recognizing a voice command as a UDC command requires some state about what is happening across the Agents on a Device. To support this the MAX library makes the ControlTypes of UDCs available during a voice request available to Agents. It does this by limiting access to this state to a Dialog just before the LISTENING state. They are delivered in the `onControlsReceived` callback of the `ControlReceiverInterface`.
 
 This is the only way to get access to the available Controls. Notice the ControlType does not give the listening Agent any data about what or which Agent has registered the Control. These restrictions are in place to make an Agent using the MAX library automatically limit the exposure of their data to other Agents. The set of ControlTypes will not be updated, and should not be used outside of the originating speech request.
 
@@ -127,7 +130,7 @@ dialogController->stopAndInvokeControl(controlTypeToInvoke);
 
 ### Invoking Agents' Controls
 
-While it is possible to invoke your Agents controls in the same way as others, this is not the best way to handle these types of requests from customers. When your Agent has an Activity with a STOP `Control` registered, it can be stopped by any Agent using MAX. This includes your own Agent. However if a customer asks your Agent to ‘stop’, it is best practice for your Agent to recognize it has something stoppable directly without going through the UDC feature. The reason for this is your Agent should be able to disambiguate a customers intention in these situations. For example, if there are two Agents, and each has a STOP `Control` for an active Activity, the UDC invocation will stop the higher priority Activity first. If that Activity was not yours then it may break the customers expectation, since they did ask your Agent to stop. While this may be ok in some cases, it is better to bias towards assuming the customer chose your Agent purposefully and stop your Agent’s Activity directly.
+It is not possible to invoke your Agent's controls in the same way as others. Only registered controls corresponding to those activities in foreground from other agents are passed to you. When your Agent has an Activity with a STOP `Control` registered, it can be stopped by any other Agent using MAX. If a customer asks your Agent to ‘stop’, default practice for your Agent should be to recognize that it has something stoppable directly without going through the UDC feature. The reason for this is your Agent should be able to disambiguate a customers intention in these situations. For example, if there are two Agents, and each has a STOP `Control` for an active Activity, the UDC invocation will stop the higher priority Activity first. If that Activity was not yours then it may break the customers expectation, since they did ask your Agent to stop. While this may be ok in some cases, it is better to bias towards assuming the customer chose your Agent purposefully and stop your Agent’s Activity directly.
 
 ## Appendix A: UDC Data Flow and Implementation Details
 
@@ -147,16 +150,17 @@ Diagram 1 is meant to capture the control and data flow which happens when a Uni
 * **AgentA use the ControlRegistryInterface::update() function to update the set of Controls available for this Activity.**
 * **The User wakes up AgentB with the wake word ‘AgentB’.**
 * **AgentB requests a Dialog for its interaction with the User.**
-* **The Dialog request is granted and the Dialog is started.**
+* **The Dialog request is granted and control with respect to active Activity in foreground is cached, if it is found to be from another Agent.**
+* **The Dialog is started.**
 * **AgentB sets the state of the Dialog to LISTENING. Meanwhile the User has continued to ask AgentB to ‘stop’.**
-* **When LISTENING starts, AgentB is given the set of available ControlTypes through a previously registered ListeningStateHandler.**
-     The set of available Control types is merely the union of all ControlTypes of all Controls registered across all Activities and Dialogs for all Agents. This does mean if there are multiple Controls for the same ControlType only one ControlType value will be present in the set. This is as expected, only MAX has data required to make the choice between which of the duplicated ControlTypes to actually invoke. An Agent is expected to make a choice of whether or not the User wants to invoke one of them. More on how MAX makes the choice below.
-* **AgentB sends this set of ControlTypes to its voice recognition component (which in this example is in a cloud service).**
+* **The set of available ControlTypes is passed through a previously registered ControlReceiver to AgentB.**
+  The set of available Control types is merely the union of all ControlTypes for the active Activities of other Agent (AgentA, in this case). An Agent is expected to make a choice of whether or not the User wants to invoke one of them.
+* **When LISTENING starts, AgentB sends this set of ControlTypes to its voice recognition component (which in this example is in a cloud service).**
 * **The voice recognition system recognizes the User said ‘stop’ and checks if stop should take some action within the AgentB features, determines there is nothing and therefore checks against available UDC ControlTypes. ControlType::STOP is included, so it returns a message to AgentB on the device to invoke the UDC for ControlType::STOP.**
      Remember MAX Library is not involved in any way in this recognition and deciding how to take action. It merely provides some context to what the multi-agent experience is. It is the Agents responsibility to use this context to take the best action for the user.
 * **AgentB has nothing to respond with other than invoking the UDC, so it uses `DeviceControllerInterface::stopAndInvokeControl(ControlType::STOP)` to both end its Dialog and invoke the UDC.**
-* **MAX Library determines which control should be invoked based on the given ControlType. In this case the only Control registered with a STOP ControlType is from AgentA, so it executes the ControlTask within the registered Control to invoke the UDC.**
-     If there were multiple Controls registered for the invoked ControlType, MAX Library chooses the one providing the primary experience for the user. More precisely this means it will invoke a ControlType registered with a Dialog before stopping one registered with an Activity. It will also stop one registered with an Activity in the with ActivityType::COMMUNICATIONS before ActivityType::ALERTS and lastly ActivityType::CONTENT. If the User wants to stop multiple experiences they will need to ask multiple times (unless a STOP_ALL UDC is available, but this would clearly be handled as a special type of Control instead of disambiguated as described here).
+* **MAX Library determines which control should be invoked based on the given ControlType. In this case the only Control registered with a STOP ControlType is from AgentA & the activity is still active. So it executes the ControlTask within the registered Control to invoke the UDC.**
+     MAX Library checks whether the control registered for the Activity in foreground during dialog invocation is still active. If found so, decision is made to act on the registered Control.
 * **AgentA’s ControlTask registered for its Activity is invoked. It is given no data about why or how it was invoked, but trusts MAX Library and stops its Activity’s content and removes it from the MAX Library via the `ActivityManagerInterface`. This automatically deregisters the Controls in the `ControlRegistryInterface` associated with the Activity.**
      Once the Activity is stopped, either by the Agent using the `ActivityManagerInterface::release` function or it is stopped by MAX Library for another reason (through `ActivityHandlerInterface::onStop`), all Controls registered with this `ControlRegistryInterface` will be automatically deregistered. This is done again by simple keeping track of which `ControlRegistryInterface` was used to register each Control, and when an Activity is stopped removing all Controls registered with the `ControlRegistryInterface` associated  with the Activity. Remember Agents are welcome to use `ControlRegistryInterface::update` to add, change, or remove any Controls while the Activity is active, the automatic cleanup just makes it easier to ensure each Agent is not leaking Controls over time.
 

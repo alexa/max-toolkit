@@ -16,5 +16,5 @@ Other Documentation:
 - [Integrating_With_MAX_Controls.md](Integrating_With_MAX_Controls.md): A description of MAX Controls, and how to integrate them with a device or agent.
 - [Integrating_With_MAX_Experiences.md](Integrating_With_MAX_Experiences.md): A description of MAX Experiences, and how to integrate them with a device or agent.
 - [MAX_Sample_Application_Getting_Started_Guide.md](MAX_Sample_Application_Getting_Started_Guide.md): A getting started guide for the MAX Sample Application; prerequisites, building instructions, and running instructions.
-- [Overview_Of_MAX_Sample_Application_And_Multiple_Wake_Word_Engines.md](Overview_Of_MAX_Sample_Application_And_Multiple_Wake_Word_Engines.md): An overview of the way the MAX Sample Application supports multiple concurrent wake word engines.
+- [Overview_Of_MAX_Sample_Application.md](Overview_Of_MAX_Sample_Application.md): An overview of the way in which MAX Sample Application supports audio and microphone integrations.
 

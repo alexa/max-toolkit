@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/MultiAgentExperience-Integration-AppTargets.cmake")
+
+check_required_components(MultiAgentExperience-Integration-App)
