@@ -1,0 +1,11 @@
+target_sources(
+        MultiAgentExperience-IPC-gRPC
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/AgentRegistrationAdapter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/GrpcConnection.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/GrpcConnectionConfiguration.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/GrpcConnectionBuilder.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MaxConnectionAdapter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/GrpcChannelProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/GrpcServerProxy.cpp
+)

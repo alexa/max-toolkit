@@ -1,0 +1,387 @@
+syntax = "proto3";
+package MultiAgentExperience.Rpc;
+
+service MultiAgentExperienceService {
+  rpc handle(Message) returns (VoidPayload) {}
+  rpc Heartbeat(VoidPayload) returns (stream HeartbeatMessage) {}
+}
+
+enum HeartbeatType {
+  INITIAL = 0;
+  ONGOING = 1;
+}
+
+message HeartbeatMessage {
+  HeartbeatType heartbeat = 1;
+}
+
+//////////////////////////////////////////////////////////////////
+//////////////////// MAX MESSAGE TYPES ///////////////////////////
+//////////////////////////////////////////////////////////////////
+enum MaxMessageType {
+  CONNECTED_TO_MAX = 0;
+  DISCONNECTED_TO_MAX = 1;
+}
+
+//////////////////////////////////////////////////////////////////
+//////////////////// ACTIVITY MESSAGE TYPES //////////////////////
+//////////////////////////////////////////////////////////////////
+enum ActivityManagerMessageType {
+  ACTIVITY_MANAGER_REQUEST = 0;
+  ACTIVITY_MANAGER_STOP = 1;
+}
+
+enum ActivityRequestGetTypeMessageType {
+  ACTIVITY_REQUEST_GET_TYPE = 0;
+}
+
+enum ActivityRequestGetHandlerMessageType {
+  ACTIVITY_REQUEST_GET_HANDLER = 0;
+}
+
+enum ActivityRequestGetMixabilityTypeMessageType {
+  ACTIVITY_REQUEST_GET_MIXABILITY_TYPE = 0;
+}
+
+enum ActivityRequestReturnMessageType {
+  GET_TYPE = 0;
+  GET_HANDLER = 1;
+  GET_MIXABILITY_TYPE = 2;
+}
+
+enum ActivityHandlerMessageType {
+  ON_DENIED = 0;
+  ON_GRANTED = 1;
+  ON_FOCUS_CHANGED = 2;
+  ON_STOP = 3;
+}
+
+enum ActivityControllerMessageType {
+  CONTROLLER_STOP = 0;
+}
+
+//////////////////////////////////////////////////////////////////
+///////////////////// CONTROL MESSAGE TYPES //////////////////////
+//////////////////////////////////////////////////////////////////
+enum ControlMessageType {
+  CONTROL_TASK = 0;
+}
+
+enum ControlRegistryMessageType {
+  UPDATE = 0;
+}
+
+enum ControlReceiverMessageType {
+  ON_CONTROLS_RECEIVED = 0;
+}
+
+//////////////////////////////////////////////////////////////////
+//////////////////// DIALOG MESSAGE TYPES ////////////////////////
+//////////////////////////////////////////////////////////////////
+enum DialogControllerMessageType {
+  DIALOG_CONTROLLER_START_LISTENING = 0;
+  DIALOG_CONTROLLER_START_THINKING = 1;
+  DIALOG_CONTROLLER_START_SPEAKING = 2;
+  DIALOG_CONTROLLER_INVOKE_CONTROL_AND_START_SPEAKING = 3;
+  DIALOG_CONTROLLER_STOP = 4;
+  DIALOG_CONTROLLER_STOP_AND_INVOKE_CONTROL = 5;
+}
+
+enum DialogManagerMessageType {
+  DIALOG_MANAGER_REQUEST = 0;
+  DIALOG_MANAGER_STOP = 1;
+  DIALOG_MANAGER_SET_ALL_HANDLERS = 2;
+  DIALOG_MANAGER_REMOVE_ALL_HANDLERS = 3;
+  DIALOG_MANAGER_SET_CONTROL_RECEIVER =  4;
+  DIALOG_MANAGER_REMOVE_CONTROL_RECEIVER = 5;
+  DIALOG_MANAGER_SET_LISTENING_HANDLER = 6;
+  DIALOG_MANAGER_REMOVE_LISTENING_HANDLER = 7;
+  DIALOG_MANAGER_SET_THINKING_HANDLER = 8;
+  DIALOG_MANAGER_REMOVE_THINKING_HANDLER = 9;
+  DIALOG_MANAGER_SET_SPEAKING_HANDLER = 10;
+  DIALOG_MANAGER_REMOVE_SPEAKING_HANDLER = 11;
+}
+
+enum DialogRequestMessageType {
+  DIALOG_REQUEST_ON_DENIED = 0;
+  DIALOG_REQUEST_ON_DIALOG_STARTED = 1;
+  DIALOG_REQUEST_ON_ERROR = 2;
+  DIALOG_REQUEST_ON_DIALOG_STOPPED = 3;
+}
+
+enum DialogRequestGetDialogBargeInPriorityMessageType {
+  DIALOG_REQUEST_GET_DIALOG_BARGE_IN_PRIORITY = 0;
+}
+
+enum DialogRequestReturnMessageType {
+  GET_DIALOG_BARGE_IN_PRIORITY = 0;
+}
+
+enum ListeningHandlerMessageType {
+  ON_START_LISTENING = 0;
+  ON_STOP_LISTENING = 1;
+}
+
+enum ThinkingHandlerMessageType {
+  ON_START_THINKING = 0;
+  ON_STOP_THINKING = 1;
+}
+
+enum SpeakingHandlerMessageType {
+  ON_START_SPEAKING = 0;
+  ON_STOP_SPEAKING = 1;
+}
+
+enum StartListeningCallbackMessageType {
+  START_LISTENING = 0;
+}
+
+//////////////////////////////////////////////////////////////////
+//////////////////// EXPERIENCE MESSAGE TYPES ////////////////////
+//////////////////////////////////////////////////////////////////
+enum ExperienceControllerMessageType {
+  START_EXPERIENCE = 0;
+  END_EXPERIENCE = 1;
+  INVALIDATE = 2;
+}
+
+enum StaticExperienceManagerMessageType {
+  ADD_STATIC_EXPERIENCE = 0;
+  REMOVE_STATIC_EXPERIENCE = 1;
+  REMOVE_ALL_STATIC_EXPERIENCES = 2;
+}
+
+//////////////////////////////////////////////////////////////////
+////////////////// COMMON MESSAGE TYPES ///////////////////
+//////////////////////////////////////////////////////////////////
+enum OnCompletionCallbackMessageType {
+  COMPLETED = 0;
+}
+
+//////////////////////////////////////////////////////////////////
+////////////////////// AGENT MESSAGE TYPES ///////////////////////
+//////////////////////////////////////////////////////////////////
+enum AgentRegistrationMessageType {
+  AGENT_REGISTRATION_ON_READY = 0;
+}
+
+enum AgentRegistrationGetIdMessageType {
+  AGENT_REGISTRATION_GET_ID = 0;
+}
+
+enum AgentRegistrationGetNameMessageType {
+  AGENT_REGISTRATION_GET_NAME = 0;
+}
+
+enum AgentRegistrationReturnMessageType {
+  GET_ID = 0;
+  GET_NAME = 1;
+}
+
+enum MaxApiType {
+  // Activities
+  ACTIVITY_CONTROLLER = 0;
+  ACTIVITY_HANDLER = 1;
+  ACTIVITY_MANAGER = 2;
+  ACTIVITY_REQUEST = 3;
+
+  // Agent
+  AGENT_REGISTRATION = 4;
+
+  // Common
+  ON_COMPLETION_CALLBACK = 5;
+
+  // Control
+  CONTROL = 6;
+  CONTROL_REGISTRY = 7;
+
+  // Dialog
+  CONTROL_RECEIVER = 8;
+  DIALOG_CONTROLLER = 9;
+  DIALOG_MANAGER = 10;
+  DIALOG_REQUEST = 11;
+  LISTENING_HANDLER = 12;
+  SPEAKING_HANDLER  = 13;
+  START_LISTENING_CALLBACK = 14;
+  THINKING_HANDLER = 15;
+
+  // Experience
+  EXPERIENCE_CONTROLLER = 16;
+  STATIC_EXPERIENCE_MANAGER = 17;
+}
+
+
+//////////////////////////////////////////////////////////////////
+/////////////////////////// PAYLOADS /////////////////////////////
+//////////////////////////////////////////////////////////////////
+message Reference {
+  string nspace = 1;
+  string name = 2;
+  int64 identifier = 3;
+}
+
+message ReferencePayload {
+  Reference reference = 1;
+}
+
+message ReferenceListPayload {
+  repeated Reference referenceList = 1;
+}
+
+message VoidPayload {}
+
+message StringPayload {
+  string value = 1;
+}
+
+message StringIntTuplePayload {
+  string stringValue = 1;
+  int64 intValue = 2;
+}
+
+message StringListPayload {
+  repeated string stringList = 1;
+}
+
+message ReferenceControlTypeTuple {
+  Reference reference = 1;
+  ControlType controlType = 2;
+}
+
+message ControlRegistryPayload {
+  repeated ReferenceControlTypeTuple referenceControlTypeTuple = 1;
+}
+
+message ControlReceiverPayload {
+  Reference reference = 1;
+  repeated ControlType controlType = 2;
+}
+
+message ActivityFocusMixingBehaviorTuple {
+  ActivityFocus activityFocus = 1;
+  MixingBehavior mixingBehavior = 2;
+}
+
+enum ActivityType {
+  COMMUNICATION = 0;
+  ALERTS = 1;
+  NOTIFICATIONS = 2;
+  CONTENT = 3;
+}
+
+enum MixabilityType {
+  MIXABLE_RESTRICTED = 0;
+  NONMIXABLE = 1;
+  MIXABLE_UNRESTRICTED = 2;
+}
+
+enum ActivityFocus {
+  FOREGROUND = 0;
+  BACKGROUND = 1;
+}
+
+enum MixingBehavior {
+  MUST_ATTENUATE = 0;
+  MUST_PAUSE = 1;
+  UNRESTRICTED = 2;
+}
+
+enum ControlType {
+  STOP = 0;
+}
+
+enum DialogBargeInPriority {
+  HIGH = 0;
+  NORMAL = 1;
+}
+
+//////////////////////////////////////////////////////////////////
+////////////////////// TOP-LEVEL MESSAGE /////////////////////////
+//////////////////////////////////////////////////////////////////
+
+message Message {
+
+  Reference reference = 1;
+
+  oneof ReplyToReference {
+    VoidPayload replyToEmpty = 2;
+    Reference replyTo = 3;
+  }
+
+  oneof Payload {
+    ReferencePayload referencePayload = 100;
+    ReferenceListPayload referenceListPayload = 101;
+    VoidPayload voidPayload = 102;
+    StringPayload stringPayload = 103;
+    StringIntTuplePayload stringIntTuplePayload = 104;
+    StringListPayload stringListPayload = 105;
+    ActivityType activityType = 106;
+    ActivityFocus activityFocus = 107;
+    ControlType controlType = 108;
+    DialogBargeInPriority dialogBargeInPriority = 109;
+    ControlRegistryPayload controlRegistryPayload = 110;
+    ControlReceiverPayload controlReceiverPayload = 111;
+    MixabilityType mixabilityType = 112;
+    ActivityFocusMixingBehaviorTuple activityFocusMixingBehaviorTuple = 113;
+  }
+
+  oneof MessageType {
+    MaxMessageType maxMessage = 200;
+
+    //////////////////////////////////////////////////////////////////
+    //////////////////// ACTIVITY MESSAGE TYPES //////////////////////
+    //////////////////////////////////////////////////////////////////
+    ActivityControllerMessageType activityControllerMessageType = 301;
+    ActivityHandlerMessageType activityHandlerMessageType = 302;
+    ActivityManagerMessageType activityManagerMessageType = 303;
+    ActivityRequestGetHandlerMessageType activityRequestGetHandlerMessageType = 304;
+    ActivityRequestGetMixabilityTypeMessageType activityRequestGetMixabilityTypeMessageType = 305;
+    ActivityRequestGetTypeMessageType activityRequestGetTypeMessageType = 306;
+    ActivityRequestReturnMessageType activityRequestReturnMessageType = 307;
+
+    //////////////////////////////////////////////////////////////////
+    //////////////////// CONTROL MESSAGE TYPES ///////////////////////
+    //////////////////////////////////////////////////////////////////
+    ControlMessageType controlMessageType = 401;
+    ControlRegistryMessageType controlRegistryMessageType = 402;
+
+    //////////////////////////////////////////////////////////////////
+    //////////////////// DIALOG MESSAGE TYPES ////////////////////////
+    //////////////////////////////////////////////////////////////////
+    DialogControllerMessageType dialogControllerMessageType = 501;
+    DialogManagerMessageType dialogManagerMessageType = 502;
+    DialogRequestMessageType dialogRequestMessageType = 503;
+    DialogRequestGetDialogBargeInPriorityMessageType dialogRequestGetDialogBargeInPriorityMessageType = 504;
+    DialogRequestReturnMessageType dialogRequestReturnMessageType = 505;
+    ListeningHandlerMessageType listeningHandlerMessageType = 506;
+    ThinkingHandlerMessageType thinkingHandlerMessageType = 507;
+    SpeakingHandlerMessageType speakingHandlerMessageType = 508;
+    StartListeningCallbackMessageType startListeningCallbackMessageType = 509;
+    ControlReceiverMessageType controlReceiverMessageType = 510;
+
+    //////////////////////////////////////////////////////////////////
+    //////////////////// EXPERIENCE MESSAGE TYPES ////////////////////
+    //////////////////////////////////////////////////////////////////
+    ExperienceControllerMessageType experienceControllerMessageType = 601;
+    StaticExperienceManagerMessageType staticExperienceManagerMessageType = 602;
+
+    //////////////////////////////////////////////////////////////////
+    ////////////////// COMMON MESSAGE TYPES ///////////////////
+    //////////////////////////////////////////////////////////////////
+    OnCompletionCallbackMessageType onCompletionCallbackMessageType  = 701;
+
+    //////////////////////////////////////////////////////////////////
+    ////////////////////// AGENT MESSAGE TYPES ///////////////////////
+    //////////////////////////////////////////////////////////////////
+    AgentRegistrationMessageType agentRegistrationMessageType  = 801;
+    AgentRegistrationGetIdMessageType agentRegistrationGetIdMessageType = 802;
+    AgentRegistrationGetNameMessageType agentRegistrationGetNameMessageType = 803;
+    AgentRegistrationReturnMessageType agentRegistrationReturnMessageType = 804;
+
+
+    //////////////////////////////////////////////////////////////////
+    ////////////////////// DELETE MESSAGE HANDLERS ///////////////////////
+    //////////////////////////////////////////////////////////////////
+    MaxApiType maxApiType  = 901;
+  }
+}

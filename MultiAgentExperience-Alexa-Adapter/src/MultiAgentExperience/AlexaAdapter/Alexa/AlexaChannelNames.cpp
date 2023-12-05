@@ -26,6 +26,10 @@ bool AlexaChannelNames::isValidName(const std::string &candidate) {
         candidate == AlexaChannelNames::CONTENT);
 }
 
+bool AlexaChannelNames::isActivityChannel(const std::string& candidate) {
+    return alexa::AlexaChannelNames::isValidName(candidate) && candidate !=  alexa::AlexaChannelNames::DIALOG;
+}
+
 } // namespace alexa
 } // namespace multiAgentExperience
 } // namespace alexaClientSDK

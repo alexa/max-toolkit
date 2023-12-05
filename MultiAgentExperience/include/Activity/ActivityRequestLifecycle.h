@@ -45,6 +45,8 @@ public:
 
     const MixabilityType getMixabilityType();
 
+    const actor::ActorId getActorId();
+
 private:
     enum class ActivityRequestState { REQUESTED, WAITING, GRANTED, DENIED, COMPLETED };
 

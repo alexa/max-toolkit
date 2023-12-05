@@ -16,6 +16,7 @@
 #include <utility>
 #include <vector>
 
+#include "MultiAgentExperience/AlexaAdapter/Mediator/MAXFocusMediatorCleanupCallback.h"
 #include "MultiAgentExperience/AlexaAdapter/Control/StopControlFactory.h"
 #include "MultiAgentExperience/AlexaAdapter/Utils/ConversionUtils.h"
 #include "MultiAgentExperience/AlexaAdapter/Utils/FocusResult.h"
@@ -30,7 +31,8 @@ public:
             ::multiAgentExperience::activity::ActivityType activityType,
             std::string focusRequestId,
             std::shared_ptr<std::promise<utils::FocusResult>> grantedPromise,
-            std::weak_ptr<alexaClientSDK::avsCommon::sdkInterfaces::ExternalFocusMediatorCallbackInterface> mediatorCallbacks) :
+            std::weak_ptr<alexaClientSDK::avsCommon::sdkInterfaces::ExternalFocusMediatorCallbackInterface> mediatorCallbacks,
+            std::shared_ptr<mediator::MAXFocusMediatorCleanupCallback> cleanupCallback) :
             m_activityType{activityType},
             m_focusRequestId{std::move(focusRequestId)},
             m_resolved{false},
@@ -38,7 +40,8 @@ public:
             m_granted{false},
             m_grantedPromise{std::move(grantedPromise)},
             m_mediatorCallbacks{std::move(mediatorCallbacks)},
-            m_executor{} {
+            m_executor{},
+            m_cleanupCallback{std::move(cleanupCallback)} {
     }
 
     void onDenied() final;
@@ -65,6 +68,7 @@ private:
     std::shared_ptr<std::promise<utils::FocusResult>> m_grantedPromise;
     std::weak_ptr<alexaClientSDK::avsCommon::sdkInterfaces::ExternalFocusMediatorCallbackInterface> m_mediatorCallbacks;
     alexaClientSDK::avsCommon::utils::threading::Executor m_executor;
+    std::shared_ptr<mediator::MAXFocusMediatorCleanupCallback> m_cleanupCallback;
 };
 
 } // namespace activity

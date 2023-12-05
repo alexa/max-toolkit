@@ -1,0 +1,12 @@
+target_sources(
+        MultiAgentExperience-IPC
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityControllerProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityHandlerProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityManagerProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityRequestProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityControllerMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityHandlerMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityManagerMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ActivityRequestMessageHandler.cpp
+)

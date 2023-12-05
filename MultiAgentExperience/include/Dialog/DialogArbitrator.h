@@ -34,6 +34,8 @@ public:
 
     std::shared_ptr<DialogLifecycle> getCurrentDialog();
 
+    std::shared_ptr<DialogRequestID> getCurrentDialogIdForActor(const actor::ActorId& actorId);
+
     void cleanup(const DialogRequestID dialogRequestId);
 
 private:

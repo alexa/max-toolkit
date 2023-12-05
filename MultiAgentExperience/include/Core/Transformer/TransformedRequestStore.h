@@ -12,6 +12,8 @@
 #include <mutex>
 #include <unordered_map>
 
+#include <MultiAgentExperience/Utils/Logger/Logger.h>
+
 namespace multiAgentExperience {
 namespace library {
 namespace core {
@@ -23,7 +25,8 @@ public:
     void storeTransformedRequest(
         std::shared_ptr<Request> request,
         std::shared_ptr<TransformedRequest> transformedRequest) {
-        auto hashOfRequest = std::hash<std::shared_ptr<Request>>()(request);
+        // Retrieve the hash for the object based on the respective object's custom hash implementation.
+        auto hashOfRequest = request->getHash();
         auto idOfRequest = transformedRequest->getID();
         {
             std::unique_lock<std::mutex> lock{m_activeRequestsMutex};
@@ -32,19 +35,23 @@ public:
     }
 
     Identifier getTransformedRequestId(std::shared_ptr<Request> request) {
-        auto hashOfRequest = std::hash<std::shared_ptr<Request>>()(request);
+        // Retrieve the hash for the object based on the respective object's custom hash implementation.
+        auto hashOfRequest = request->getHash();
         {
             std::unique_lock<std::mutex> lock{m_activeRequestsMutex};
             if (m_activeRequestHashToIDs.find(hashOfRequest) != m_activeRequestHashToIDs.end()) {
                 return m_activeRequestHashToIDs[hashOfRequest];
             } else {
+                // Log here
+                MAX_LIBRARY_LOG_ERROR("", "TransformedRequestStore", __func__, "Did not find RequestId for the Request hash, returning RequestId - 0.");
                 return 0;
             }
         }
     }
 
     void cleanupTransformedRequest(std::shared_ptr<Request> request) {
-        auto hashOfRequest = std::hash<std::shared_ptr<Request>>()(request);
+        // Retrieve the hash for the object based on the respective object's custom hash implementation.
+        auto hashOfRequest = request->getHash();
 
         {
             std::unique_lock<std::mutex> lock{m_activeRequestsMutex};

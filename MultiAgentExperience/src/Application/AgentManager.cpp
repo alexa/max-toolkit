@@ -11,12 +11,10 @@
 
 #include <MultiAgentExperience/Utils/Logger/Logger.h>
 
-#include "Common/CallbackDispatcher.h"
-#include "Common/OnCompletionCallback.h"
 #include "Core/Transformer/ActivityManagerTransformerFactory.h"
-#include "Core/Transformer/AgentStore.h"
 #include "Core/Transformer/DialogManagerTransformerFactory.h"
 #include "MultiAgentExperience/Agent/AgentRegistrationInterface.h"
+#include "Utils/Threading/Executor.h"
 
 namespace multiAgentExperience {
 namespace library {
@@ -48,15 +46,19 @@ AgentManager::AgentManager(
     std::shared_ptr<transformer::ActivityManagerTransformerFactory> activityManagerTransformerFactory,
     std::shared_ptr<transformer::DialogManagerTransformerFactory> dialogManagerTransformerFactory,
     std::shared_ptr<transformer::StaticExperienceManagerTransformerFactory> staticExperienceManagerTransformerFactory,
-    std::shared_ptr<MAXLifecycle> maxLifecycle) :
-        m_activityManagerTransformerFactory{activityManagerTransformerFactory},
-        m_dialogManagerTransformerFactory{dialogManagerTransformerFactory},
-        m_staticExperienceManagerTransformerFactory{staticExperienceManagerTransformerFactory},
-        m_maxLifecycle{maxLifecycle} {
+    std::shared_ptr<MAXLifecycle> maxLifecycle,
+    std::shared_ptr<multiAgentExperience::library::utils::threading::Executor> executor) :
+        m_activityManagerTransformerFactory{std::move(activityManagerTransformerFactory)},
+        m_dialogManagerTransformerFactory{std::move(dialogManagerTransformerFactory)},
+        m_staticExperienceManagerTransformerFactory{std::move(staticExperienceManagerTransformerFactory)},
+        m_maxLifecycle{std::move(maxLifecycle)},
+        m_executor{std::move(executor)} {
 }
 
 bool AgentManager::registerAgents(std::set<std::shared_ptr<AgentRegistrationInterface>> agentRegistrations) {
     LX(DEBUG3, "");
+
+    std::unique_lock<std::mutex> lock(m_mutex);
 
     if (agentRegistrations.empty()) {
         LX(ERROR, "registerAgentFailed: set of agent registrations is empty");
@@ -66,59 +68,60 @@ bool AgentManager::registerAgents(std::set<std::shared_ptr<AgentRegistrationInte
     m_agentRegistrations = agentRegistrations;
 
     // The list of OnCompletion callbacks that MAX waits on
-    std::vector<std::shared_ptr<common::CallbackDispatcher<common::OnCompletionCallback>>> onReadyDispatchers;
+    std::vector<std::shared_ptr<common::OnCompletionCallback>> onReadyCompletionCallbacks;
 
-    for (auto agentRegistration : m_agentRegistrations) {
-        auto activityManagerTransformer = m_activityManagerTransformerFactory->create(agentRegistration->getId());
-
-        auto dialogManagerTransformer = m_dialogManagerTransformerFactory->create(agentRegistration->getId());
-
-        auto agentStore = std::make_shared<core::transformer::AgentStore>(shared_from_this());
-        auto staticExperienceManagerTransformer =
-            m_staticExperienceManagerTransformerFactory->create(agentRegistration->getId());
-
-        auto onReadyDispatcher = std::make_shared<common::CallbackDispatcher<common::OnCompletionCallback>>();
-        (*onReadyDispatcher)(
-            agentRegistration,
-            &AgentRegistrationInterface::onReady,
-            activityManagerTransformer,
-            dialogManagerTransformer,
-            staticExperienceManagerTransformer);
-        onReadyDispatchers.push_back(onReadyDispatcher);
+    // Invoke AgentRegistrationInterface::onReady() for each agent and store the CallbackDispatcher
+    for (const auto& agentRegistration: m_agentRegistrations) {
+        auto onReadyCompletionCallback = executeOnReady(agentRegistration);
+        onReadyCompletionCallbacks.push_back(onReadyCompletionCallback);
     }
 
-    // Iterate through the list and conditionally wait for each callback to be executed by the agent
-    for (auto& onReadyDispatcher : onReadyDispatchers) {
-        onReadyDispatcher->waitForCallback();
+    /**
+     * Wait for each callback to be executed by the agent. This allows all agents to re-request any activities/dialogs
+     * after MAX recovers from a process crash. Once the agents have completed all requests, MAX can order the requests
+     * based on their priorities. This ensures that the state of activities/dialogs is the same as before the crash.
+     */
+    for (const auto& onReadyCompletionCallback : onReadyCompletionCallbacks) {
+        onReadyCompletionCallback->wait();
     }
 
-    // Transition to ready when all @c OnCompletionCallbacks (for @c AgentRegistrationInterface::onReady) are received.
+    // Transition to ready when all OnCompletionCallbacks (for AgentRegistrationInterface::onReady) are received.
     m_maxLifecycle->transitionToReady();
 
-    LX(DEBUG3, "registerAgent succeeded for all agents.");
+    LX(DEBUG3, "registerAgents succeeded for all agents.");
 
     return true;
 }
 
-std::shared_ptr<AgentRegistrationInterface> AgentManager::getAgentById(
-    const multiAgentExperience::actor::ActorId& agentId) {
+bool AgentManager::registerAgent(
+    std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface> agentRegistration) {
     LX(DEBUG3, "");
 
-    for (auto agentRegistration : m_agentRegistrations) {
-        if (agentRegistration->getId() == agentId) {
-            return agentRegistration;
-        }
+    std::unique_lock<std::mutex> lock(m_mutex);
+
+    if (m_agentRegistrations.find(agentRegistration) != m_agentRegistrations.end()) {
+        LX(ERROR, "registerAgentFailed: agent already registered. Agent should be deregistered before registering.");
+        return false;
     }
-    return nullptr;
+
+    m_agentRegistrations.insert(agentRegistration);
+
+    // Store the CallbackDispatcher for the agent registration
+    auto onReadyCompletionCallback = executeOnReady(agentRegistration);
+
+    onReadyCompletionCallback->wait();
+
+    // Transition to ready when the OnCompletionCallback (for AgentRegistrationInterface::onReady) is received.
+    m_maxLifecycle->transitionToReady();
+
+    LX(DEBUG3, "registerAgent succeeded for the agent " + agentRegistration->getId().get());
+    return true;
 }
 
 void AgentManager::deregisterAgent(std::shared_ptr<AgentRegistrationInterface> agentRegistration) {
     LX(DEBUG3, "");
 
-    if (!agentRegistration) {
-        LX(ERROR, "deregisterAgentFailed: agent was nullptr");
-        return;
-    }
+    std::unique_lock<std::mutex> lock(m_mutex);
 
     if (m_agentRegistrations.find(agentRegistration) == m_agentRegistrations.end()) {
         LX(ERROR, "deregisterAgentFailed: agent not registered");
@@ -129,6 +132,29 @@ void AgentManager::deregisterAgent(std::shared_ptr<AgentRegistrationInterface> a
 
     LX(DEBUG3, "deregisterAgent succeeded.");
 }
+
+std::shared_ptr<common::OnCompletionCallback> AgentManager::executeOnReady(
+    std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface> agentRegistration) {
+    LX(DEBUG3, "");
+
+    auto onReadyCompletionCallback = std::make_shared<common::OnCompletionCallback>();
+
+    m_executor->submit([this, onReadyCompletionCallback, agentRegistration]() {
+        auto activityManagerTransformer = m_activityManagerTransformerFactory->create(agentRegistration->getId());
+        auto dialogManagerTransformer = m_dialogManagerTransformerFactory->create(agentRegistration->getId());
+        auto staticExperienceManagerTransformer =
+            m_staticExperienceManagerTransformerFactory->create(agentRegistration->getId());
+
+        agentRegistration->onReady(
+            onReadyCompletionCallback,
+            activityManagerTransformer,
+            dialogManagerTransformer,
+            staticExperienceManagerTransformer);
+    });
+
+    return onReadyCompletionCallback;
+}
+
 }  // namespace application
 }  // namespace library
 }  // namespace multiAgentExperience

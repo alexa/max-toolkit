@@ -120,6 +120,21 @@ void DialogManager::finish(const DialogRequestID& dialogRequestId) {
     }
     if (hasActivityToCleanup) {
         m_activityManager->finish(activityRequestId);
+    } else {
+        LX(WARN, "No activity to cleanup.");
+    }
+}
+
+void DialogManager::clearDialogForActor(const actor::ActorId& actorId) {
+    LX(DEBUG3, "");
+
+    // Find if ongoing dialog belongs to this actor
+    if(auto dialogIdToRemove = m_dialogArbitrator->getCurrentDialogIdForActor(actorId)) {
+        // cleanup the dialog and related activity
+        finish(*dialogIdToRemove);
+    }
+    else {
+        LX(DEBUG3, "No dialog from actor to remove!");
     }
 }
 

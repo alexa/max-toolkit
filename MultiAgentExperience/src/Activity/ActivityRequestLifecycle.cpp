@@ -105,6 +105,10 @@ const MixabilityType ActivityRequestLifecycle::getMixabilityType() {
     return m_activityRequest->getMixabilityType();
 }
 
+const actor::ActorId ActivityRequestLifecycle::getActorId() {
+    return m_activityRequest->getActorId();
+}
+
 }  // namespace activity
 }  // namespace library
 }  // namespace multiAgentExperience

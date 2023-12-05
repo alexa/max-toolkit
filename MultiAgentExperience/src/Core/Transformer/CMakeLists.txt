@@ -7,7 +7,6 @@ target_sources(
         ${CMAKE_CURRENT_SOURCE_DIR}/ActivityRequestTransformer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ActivityRequestTransformerFactory.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ActivityTransformer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AgentStore.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/CombinedDialogStateHandlersLifecycle.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/CombinedDialogStateHandlersLifecycleFactory.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ControlInvokerTransformer.cpp

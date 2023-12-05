@@ -35,6 +35,14 @@ ActivityManagerTransformer::ActivityManagerTransformer(
     LX(DEBUG0, ss.str());
 }
 
+ActivityManagerTransformer::~ActivityManagerTransformer() {
+    std::stringstream ss;
+    ss << "details:"
+       << " actorId=" << multiAgentExperience::library::utils::getObfuscatedActorId(m_id);
+    LX(DEBUG0, ss.str());
+    m_activityManager->clearActivitiesForActor(m_id);
+}
+
 void ActivityManagerTransformer::request(
     std::shared_ptr<multiAgentExperience::activity::ActivityRequestInterface> request) {
     std::stringstream ss;
@@ -72,6 +80,8 @@ void ActivityManagerTransformer::stop(multiAgentExperience::library::activity::A
 
     if (id > 0) {
         m_activityManager->finish(id);
+    } else {
+        LX(ERROR, "ActivityRequestId <= 0, unable to stop activity.");
     }
 }
 

@@ -13,12 +13,12 @@
 
 #include <MultiAgentExperience/Dialog/DialogManagerInterface.h>
 #include <MultiAgentExperience/Dialog/DialogRequestInterface.h>
-
 #include <MultiAgentExperience/Experience/ExperienceControllerInterface.h>
 
 #include "AlexaDialogTransitionHandler.h"
 #include "AlexaControlReceiver.h"
 #include "DialogState.h"
+#include "MultiAgentExperience/AlexaAdapter/Mediator/MAXFocusMediatorCleanupCallback.h"
 #include "MultiAgentExperience/AlexaAdapter/Utils/FocusResult.h"
 
 namespace alexaClientSDK {
@@ -35,7 +35,8 @@ public:
             std::shared_ptr<std::promise<utils::FocusResult>> promise,
             std::shared_ptr<AlexaControlReceiver> controlReceiver,
             std::weak_ptr<alexaClientSDK::avsCommon::sdkInterfaces::ExternalFocusMediatorCallbackInterface> mediatorCallbacks,
-            ::multiAgentExperience::dialog::DialogBargeInPriority dialogBargeInPriority) :
+            ::multiAgentExperience::dialog::DialogBargeInPriority dialogBargeInPriority,
+            std::shared_ptr<mediator::MAXFocusMediatorCleanupCallback> cleanupCallback) :
             m_maxDialogManager{std::move(maxDialogManager)},
             m_currentFocusRequestId{std::move(focusRequestId)},
             m_startingState{startingState},
@@ -44,6 +45,7 @@ public:
             m_controlReceiver{std::move(controlReceiver)},
             m_mediatorCallbacks{std::move(mediatorCallbacks)},
             m_dialogBargeInPriority{dialogBargeInPriority},
+            m_cleanupCallback{std::move(cleanupCallback)},
             m_currentDialogState{DialogState::UNKNOWN} {
     }
 
@@ -73,6 +75,8 @@ public:
 
     virtual void stopAndInvokeControl(::multiAgentExperience::control::ControlType controlType);
 
+    void updateCleanupCallback(std::shared_ptr<mediator::MAXFocusMediatorCleanupCallback> cleanupCallback);
+
 private:
     std::shared_ptr<::multiAgentExperience::dialog::DialogManagerInterface> m_maxDialogManager;
     std::string m_currentFocusRequestId;
@@ -83,8 +87,8 @@ private:
     std::shared_ptr<AlexaControlReceiver> m_controlReceiver;
     std::weak_ptr<alexaClientSDK::avsCommon::sdkInterfaces::ExternalFocusMediatorCallbackInterface> m_mediatorCallbacks;
     ::multiAgentExperience::dialog::DialogBargeInPriority m_dialogBargeInPriority;
-
     std::shared_ptr<::multiAgentExperience::dialog::DialogControllerInterface> m_controller;
+    std::shared_ptr<mediator::MAXFocusMediatorCleanupCallback> m_cleanupCallback;
 
     DialogState m_currentDialogState;
 

@@ -28,8 +28,9 @@ class AlexaDialogTransitionHandler :
     public ::multiAgentExperience::dialog::SpeakingHandlerInterface{
 
 public:
-    explicit AlexaDialogTransitionHandler(std::shared_ptr<std::promise<utils::FocusResult>> transitionPromise,
-                                          std::shared_ptr<AlexaControlReceiver> alexaControlReceiver = nullptr):
+    explicit AlexaDialogTransitionHandler(
+        std::shared_ptr<std::promise<utils::FocusResult>> transitionPromise,
+        std::shared_ptr<AlexaControlReceiver> alexaControlReceiver = nullptr):
             m_transitioned{false},
             m_transitionPromise{std::move(transitionPromise)},
             m_dialogFocusValue{alexaClientSDK::avsCommon::sdkInterfaces::ExternalFocusMediatorCallbackInterface::ExternalFocusState::FOREGROUND},

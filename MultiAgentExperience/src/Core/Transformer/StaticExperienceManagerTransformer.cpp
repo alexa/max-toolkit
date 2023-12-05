@@ -47,6 +47,16 @@ StaticExperienceManagerTransformer::StaticExperienceManagerTransformer(
     LX(DEBUG0, ss.str());
 }
 
+StaticExperienceManagerTransformer::~StaticExperienceManagerTransformer() {
+    std::stringstream ss;
+    ss << "details:"
+       << " actorId=" << multiAgentExperience::library::utils::getObfuscatedActorId(m_actorId)
+       << " id=" << m_id;
+    LX(DEBUG0, ss.str());
+
+    m_experienceManager->clearStaticExperiencesForActor(m_actorId);
+}
+
 std::list<multiAgentExperience::experience::Experience> StaticExperienceManagerTransformer::getSortedStaticExperienceList() {
     std::list<multiAgentExperience::experience::Experience> experiences;
 

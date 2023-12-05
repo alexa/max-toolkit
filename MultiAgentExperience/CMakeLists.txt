@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-project(MultiAgentExperience VERSION 1.3.0 LANGUAGES CXX)
+project(MultiAgentExperience VERSION 2.0.0 LANGUAGES CXX)
 
 include(CTest)
 
@@ -37,10 +37,5 @@ target_link_libraries(MultiAgentExperience PUBLIC MAX::MultiAgentExperience-Logg
 
 target_include_directories(MultiAgentExperience PRIVATE include)
 add_subdirectory(src)
-if(MAX_BUILD_TESTS)
-    find_package(GTest REQUIRED)
-    include(cmake/GoogleTest.cmake)
-    add_subdirectory(test)
-endif()
 
 include(cmake/Install.cmake)

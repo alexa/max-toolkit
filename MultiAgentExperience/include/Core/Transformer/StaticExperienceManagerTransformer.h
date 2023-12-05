@@ -24,6 +24,8 @@ public:
         const multiAgentExperience::actor::ActorId& id,
         std::shared_ptr<library::experience::ExperienceManager> experienceManager);
 
+    ~StaticExperienceManagerTransformer();
+
     /// @name StaticExperienceManagerInterface method overrides.
     /// @{
     void addStaticExperience(

@@ -10,9 +10,9 @@
 
 #include <MultiAgentExperience/Agent/AgentRegistrationInterface.h>
 
-
 #include <utility>
 
+#include "MultiAgentExperience/AlexaAdapter/Alexa/AlexaAgentNames.h"
 #include "MultiAgentExperience/AlexaAdapter/Experience/AlexaNotificationsObserver.h"
 #include "MultiAgentExperience/AlexaAdapter/Experience/DoNotDisturbSettingObserver.h"
 #include "MultiAgentExperience/AlexaAdapter/Mediator/MAXFocusMediator.h"
@@ -31,12 +31,14 @@ public:
         std::shared_ptr<multiAssistant::universalDeviceController::UniversalDeviceCommandsInvoker> universalDeviceCommandsInvoker,
         std::shared_ptr<multiAssistant::universalDeviceController::UniversalDeviceCommandsProvider> universalDeviceCommandsProvider,
         std::shared_ptr<experience::DoNotDisturbSettingObserver> doNotDisturbSettingObserver = nullptr,
-        std::shared_ptr<experience::AlexaNotificationsObserver> notificationsObserver = nullptr) :
+        std::shared_ptr<experience::AlexaNotificationsObserver> notificationsObserver = nullptr,
+        const std::string& agentName = alexaClientSDK::multiAgentExperience::alexa::ALEXA_AGENT_NAME) :
             m_mediator{std::move(mediator)},
             m_universalDeviceCommandsInvoker{std::move(universalDeviceCommandsInvoker)},
             m_universalDeviceCommandsProvider{std::move(universalDeviceCommandsProvider)},
             m_doNotDisturbSettingObserver{doNotDisturbSettingObserver},
-            m_notificationsObserver{notificationsObserver} {
+            m_notificationsObserver{notificationsObserver},
+            m_agentName{agentName} {
     }
 
     void onReady(
@@ -55,6 +57,7 @@ private:
     std::shared_ptr<multiAssistant::universalDeviceController::UniversalDeviceCommandsProvider> m_universalDeviceCommandsProvider;
     std::shared_ptr<experience::DoNotDisturbSettingObserver> m_doNotDisturbSettingObserver;
     std::shared_ptr<experience::AlexaNotificationsObserver> m_notificationsObserver;
+    std::string m_agentName;
 };
 
 } // namespace agent

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-project(MultiAgentExperience-Logger VERSION 1.3.0 LANGUAGES CXX)
+project(MultiAgentExperience-Logger VERSION 2.0.0 LANGUAGES CXX)
 include(CTest)
 
 find_package(MultiAgentExperience-API REQUIRED)

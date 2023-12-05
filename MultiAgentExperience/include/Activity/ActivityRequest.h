@@ -35,7 +35,7 @@ public:
 
     bool isWillingToWait() const;
 
-    const ActivityRequestID getID() const;
+    virtual const ActivityRequestID getID() const;
 
     const MixabilityType getMixabilityType() const;
 

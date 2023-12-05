@@ -34,6 +34,8 @@ public:
 
     void finish(const DialogRequestID& dialogRequestId);
 
+    void clearDialogForActor(const actor::ActorId& actorId);
+
 private:
     std::mutex m_requestMutex;
     std::shared_ptr<DialogArbitrator> m_dialogArbitrator;

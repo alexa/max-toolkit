@@ -46,6 +46,14 @@ DialogManagerTransformer::DialogManagerTransformer(
     LX(DEBUG0, ss.str());
 }
 
+DialogManagerTransformer::~DialogManagerTransformer() {
+    std::stringstream ss;
+    ss << "details:"
+       << " actorId=" << multiAgentExperience::library::utils::getObfuscatedActorId(m_actorId);
+    LX(DEBUG0, ss.str());
+    m_dialogManager->clearDialogForActor(m_actorId);
+}
+
 void DialogManagerTransformer::request(std::shared_ptr<multiAgentExperience::dialog::DialogRequestInterface> request) {
     std::stringstream ss;
     ss << "details:"
@@ -186,6 +194,8 @@ multiAgentExperience::actor::ActorId DialogManagerTransformer::getActorId() cons
 void DialogManagerTransformer::stop(multiAgentExperience::library::dialog::DialogRequestID id) {
     if (id > 0) {
         m_dialogManager->finish(id);
+    } else {
+        LX(ERROR, "DialogRequestId <= 0, unable to stop dialog.");
     }
 }
 

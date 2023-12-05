@@ -62,6 +62,8 @@ public:
         multiAgentExperience::actor::ActorId actorId,
         std::list<multiAgentExperience::experience::Experience> staticExperiences);
 
+    void clearStaticExperiencesForActor(const actor::ActorId& actorId);
+
     /// Generate a unique SessionId
     /// Thread Safe
     static multiAgentExperience::experience::Experience::SessionId generateSessionId();

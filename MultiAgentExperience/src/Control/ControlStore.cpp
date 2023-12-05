@@ -70,9 +70,10 @@ void ControlStore::store(
             m_activityIds.erase(controlAccessKey);
             m_controlPriorities.erase(controlAccessKey);
         } else {
-            m_controls.insert(std::make_pair(controlAccessKey, controls));
-            m_activityIds.insert(std::make_pair(controlAccessKey, activityId));
-            m_controlPriorities.insert(std::make_pair(controlAccessKey, controlPriority));
+            // Important to overwrite values for keys which are already existing
+            m_controls[controlAccessKey] = controls;
+            m_activityIds[controlAccessKey] = activityId;
+            m_controlPriorities[controlAccessKey] = controlPriority;
         }
     }
 
@@ -223,10 +224,10 @@ std::unordered_map<ControlName, std::weak_ptr<Control>> filterHighestPriorityCon
         // If this happens, we will consider the latest control that is present.
         // Right now, we will use the ControlAccessKey to decide this.
         // But in future if we find more such cases, we can invest on finding a more robust mechanism to do this.
-
         curControlRecords.sort(CompareControlRecordsByPriorityAndAccessKey());
 
-        requestedControls.insert(std::make_pair(curName, curControlRecords.front().m_control));
+        // Important to overwrite the existing record (for the same curName) in the unordered_map using the [] operator.
+        requestedControls[curName] = curControlRecords.front().m_control;
     }
 
     return requestedControls;

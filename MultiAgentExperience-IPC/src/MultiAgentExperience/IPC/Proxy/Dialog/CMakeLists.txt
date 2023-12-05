@@ -1,0 +1,20 @@
+target_sources(
+        MultiAgentExperience-IPC
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlReceiverMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlReceiverProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogControllerMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogControllerProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogManagerMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogManagerProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogRequestMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DialogRequestProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ListeningHandlerMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ListeningHandlerProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/SpeakingHandlerMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/SpeakingHandlerProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/StartListeningCallbackMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/StartListeningCallbackProxy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ThinkingHandlerMessageHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ThinkingHandlerProxy.cpp
+)

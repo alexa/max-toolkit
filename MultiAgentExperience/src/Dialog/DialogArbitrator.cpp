@@ -101,6 +101,20 @@ std::shared_ptr<DialogLifecycle> DialogArbitrator::getCurrentDialog() {
     return m_dialogLifecycle;
 }
 
+std::shared_ptr<DialogRequestID> DialogArbitrator::getCurrentDialogIdForActor(
+    const actor::ActorId& actorId) {
+    LX(DEBUG3, "");
+    std::shared_ptr<DialogRequestID> dialogRequestId = nullptr;
+
+    std::unique_lock<std::mutex> lock(m_sessionMutex);
+    if(nullptr != m_dialogLifecycle
+        && actorId == m_dialogLifecycle->getActorId()) {
+        dialogRequestId = std::make_shared<DialogRequestID>(m_dialogRequestID);
+    }
+
+    return dialogRequestId;
+}
+
 void DialogArbitrator::cleanup(const DialogRequestID dialogRequestId) {
     LX(DEBUG3, "");
 

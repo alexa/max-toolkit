@@ -2,7 +2,7 @@
 
 ## Notice
 
-This document provides an overview of material changes to the MAX Toolkit.
+This document provides an overview of material changes to the MAX APIs and their usages, post MAX Toolkit v0.4.0.
 
 ## Introduction
 
@@ -141,6 +141,26 @@ public:
 }
 ```
 
+**Addition of new registerAgent API to AgentManagerInterface**  
+To facilitate re-registration of a single agent after the agent has recovered from a process crash, a new registerAgent() API is introduced in the AgentManagerInterface.
+
+```
+class AgentManagerInterface {
+public:
+...
+    /**
+     * Registers an agent with the manager, if it is not registered already.
+     *
+     * @param agentRegistration The agent to be registered
+     * @return true On success
+     * @return false On failure
+     */
+    virtual bool registerAgent(
+        std::shared_ptr<AgentRegistrationInterface> agentRegistration) = 0;      
+...        
+};
+```
+
 #### Changes for the AgentRegistrationInterface
 
 `AgentRegistrationInterface::onReady` will be called any time MAX is newly ready for to be used, which is only expected to be once per registration of the agent. Remember if MAX goes down, the device will be re-registering agents the next time MAX is brought up. The parameters include the MAX APIs ready to use (i.e. `ActivityManagerInterface` and `DialogManagerInterface`, and `StaticExperienceManagerInterface`) as well as an `OnCompletionCallbackInterface`. This callback is expected to be executed when the agent is ready. This either is immediately if there is no re-requesting of Activities or Dialogs, or it is expected to be held until those Activities and Dialogs have been re-requested. The new requests should not be waited on, just placed with the provided APIs. If the callback is not called, there will also be no impact. Once all agents have been registered, given APIs in onReady, and executed the `OnCompletionCallbackInterface`, MAX will evaluate all currently requested items and accept the ones which are still valid, placing them in the correct state. This will minimize user impact, and result in the state these features would have been in if MAX had never been down. `AgentRegistrationInterface` is now a pure virtual class.
@@ -178,6 +198,65 @@ public:
 }  // namespace common
 }  // namespace multiAgentExperience
 ```
+
+## Changes to Utils
+### Addition of a new HashableInterface
+A new HashableInterface with only one method - getHash() is introduced. The HashableInterface provides a default implementation for the getHash() method which calculates a unique hash for the object.
+
+```
+namespace multiAgentExperience {
+namespace utils {
+
+/**
+ * @brief The HashableInterface class defines an interface for objects that can be hashed.
+ *
+ * This interface provides a default implementation of the getHash() method,
+ * which generates a hash value based on the memory address of the object.
+ * Derived classes can override this method to provide custom hash calculation logic.
+ */
+class HashableInterface {
+public:
+    /**
+     * Destructor.
+     */
+    virtual ~HashableInterface() = default;
+
+    /**
+     * Get the hash value of the object, based on its memory address.
+     *
+     * @return The hash value of the object.
+     */
+    virtual std::size_t getHash() const {
+        return std::hash<const void*>()(static_cast<const void*>(this));
+    }
+};
+
+}  // namespace utils
+}  // namespace multiAgentExperience
+```
+
+The ActivityRequestInterface and the DialogRequestInterface both inherit from the HashableInterface.
+
+```
+class ActivityRequestInterface : public utils::HashableInterface {
+public:
+
+...
+
+};
+```
+
+```
+class DialogRequestInterface : public utils::HashableInterface {
+public:
+
+...
+
+};
+```
+
+### Why was this introduced?
+For activity and dialog requests, MAX calculates the hash of the request objects and stores information for that particular hash. With the introduction of the MAX IPC framework, instead of actual request objects, “proxies“ are requested to MAX. The MAX IPC framework may use multiple ”proxies” for the same  request object. By providing a custom `getHash` implementation, the IPC framework can ensure correct functionality in MAX. The corresponding code in MAX is changed to use the new `getHash` APIs.
 
 ## Changes to Dialogs
 
@@ -355,6 +434,40 @@ Simultaneous activities of the same type can now be scheduled by MAX. A correspo
 
 Currently, the default activity behavior is to allow only a single activity of a particular type to be active at once. This means that any simultaneous activity across agents will always be stopped. Consider the use case of multiple simultaneous alerts (like timers, alarms, and reminders). If these alerts become active at the same time, each new activity will replace the older one. Hence, by adding an option to stack these activities, MAX will handle each requested activity until it is stopped by the user/agent.
 
+### Making methods virtual in ActivityRequestInterface
+All methods in the ActivityRequestInterface are made virtual.
+
+```
+class ActivityRequestInterface : public utils::HashableInterface {
+public:
+    ...
+
+    /**
+     * Destructor.
+     */
+    virtual ~ActivityRequestInterface() = default;
+
+    /**
+     * @return The type of the requested activity.
+     */
+    virtual ActivityType getType() const {
+        return m_activityType;
+    }
+
+    /**
+     * @return The handler for the requested activity.
+     */
+    virtual std::shared_ptr<ActivityHandlerInterface> getHandler() const {
+        return m_handler;
+    }
+
+    /**
+     * @return The MixabilityType for the requested activity.
+     */
+    virtual MixabilityType getMixabilityType() const {
+        return m_mixabilityType;
+    }
+```
 
 ## Changes to Controls
 
@@ -433,6 +546,19 @@ Example code snippet for execution of the StartListeningCallback.
 
 ```
 startListeningCallback->startListening();
+```
+
+##### Making the method virtual in StartListeningCallback
+The StartListeningCallback::startListening method is made virtual.
+```
+class StartListeningCallback{
+public:
+    ...
+    
+    virtual void startListening() {
+        ...
+    }
+};
 ```
 
 ## Changes to MAXFactory

@@ -46,6 +46,8 @@ public:
 
     virtual void stopAllActivities();
 
+    void clearActivitiesForActor(const actor::ActorId& actorId);
+
 private:
 
     /// @name MAXLifecycleObserverInterface method overrides.

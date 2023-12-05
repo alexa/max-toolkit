@@ -113,17 +113,17 @@ class MAXInterface {
 public:
     virtual ~MAXInterface() = default;
     
-    virtual std::shared_ptr<multiAgentExperience::agent::AgentManagerInterface> AgentManager() = 0;
+    virtual std::shared_ptr<multiAgentExperience::agent::AgentManagerInterface> getAgentManager() = 0;
     
-    virtual std::shared_ptr<multiAgentExperience::experience::ExperienceManagerInterface> ExperienceManager() = 0;
+    virtual std::shared_ptr<multiAgentExperience::experience::ExperienceManagerInterface> getExperienceManager() = 0;
     
-    virtual std::shared_ptr<multiAgentExperience::activity::ActivityManagerInterface> ActivityManager() = 0;
+    virtual std::shared_ptr<multiAgentExperience::activity::ActivityManagerInterface> getActivityManager() = 0;
      
-    virtual std::shared_ptr<multiAgentExperience::control::ControlManagerInterface> ControlManager() = 0;
+    virtual std::shared_ptr<multiAgentExperience::control::ControlManagerInterface> getControlManager() = 0;
     
-    virtual std::shared_ptr<multiAgentExperience::control::ControlInvokerInterface> ControlInvoker() = 0;
+    virtual std::shared_ptr<multiAgentExperience::control::ControlInvokerInterface> getControlInvoker() = 0;
      
-    virtual std::shared_ptr<multiAgentExperience::device::SetupManagerInterface> SetupManager() = 0;
+    virtual std::shared_ptr<multiAgentExperience::device::SetupManagerInterface> getSetupManager() = 0;
     
     virtual void setLogLevel(multiAgentExperience::utils::Log::Level level) = 0;
 };
@@ -141,6 +141,9 @@ class AgentManagerInterface {
 public:
     virtual bool registerAgents(
         std::set<std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface>> agentRegistrations) = 0;
+    
+    virtual bool registerAgent(
+        std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface> agentRegistration) = 0;
     
     virtual void deregisterAgent(
         std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface>>) = 0;

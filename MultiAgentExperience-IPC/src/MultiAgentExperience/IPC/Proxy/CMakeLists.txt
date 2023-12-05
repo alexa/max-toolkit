@@ -1,0 +1,6 @@
+add_subdirectory(Activity)
+add_subdirectory(Agent)
+add_subdirectory(Common)
+add_subdirectory(Control)
+add_subdirectory(Dialog)
+add_subdirectory(Experience)

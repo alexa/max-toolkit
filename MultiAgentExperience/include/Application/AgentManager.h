@@ -16,6 +16,7 @@
 #include <MultiAgentExperience/Agent/AgentManagerInterface.h>
 
 #include "Application/MAXLifecycle.h"
+#include "Common/OnCompletionCallback.h"
 #include "Core/Transformer/ActivityManagerTransformerFactory.h"
 #include "Core/Transformer/DialogManagerTransformerFactory.h"
 #include "Core/Transformer/StaticExperienceManagerTransformerFactory.h"
@@ -24,9 +25,7 @@ namespace multiAgentExperience {
 namespace library {
 namespace application {
 
-class AgentManager
-        : public multiAgentExperience::agent::AgentManagerInterface
-        , public std::enable_shared_from_this<AgentManager> {
+class AgentManager: public multiAgentExperience::agent::AgentManagerInterface {
 public:
     /**
      * Create an instance.
@@ -47,17 +46,10 @@ public:
     /// @{
     bool registerAgents(
         std::set<std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface>> agentRegistrations) override;
+    bool registerAgent(
+        std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface> agentRegistration) override;
     void deregisterAgent(std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface> agentRegistration) override;
     /// @}
-
-    /**
-     * Get the Agent by its id
-     *
-     * @param The id of the agent
-     * @return std::shared_ptr<agent::Agent> The matching agent or nullptr
-     */
-    std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface> getAgentById(
-        const multiAgentExperience::actor::ActorId& id);
 
 private:
     AgentManager(
@@ -67,9 +59,18 @@ private:
             dialogManagerTransformerFactory,
         std::shared_ptr<multiAgentExperience::library::core::transformer ::StaticExperienceManagerTransformerFactory>
             staticExperienceManagerTransformerFactory,
-        std::shared_ptr<MAXLifecycle> maxLifecycle);
+        std::shared_ptr<MAXLifecycle> maxLifecycle,
+        std::shared_ptr<multiAgentExperience::library::utils::threading::Executor> executor =
+            std::make_shared<multiAgentExperience::library::utils::threading::Executor>());
 
-    std::set<std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface>> m_agentRegistrations;
+    /**
+     * Executes the AgentRegistrationInterface::onReady() for all agents, and returns the OnCompletionCallback
+     * in order to wait for the agent to trigger it. This is an asynchronous call, since we are invoking agent code
+     * while holding a lock.
+     */
+    std::shared_ptr<common::OnCompletionCallback> executeOnReady(
+        std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface> agentRegistration);
+
     std::shared_ptr<multiAgentExperience::library::core::transformer::ActivityManagerTransformerFactory>
         m_activityManagerTransformerFactory;
     std::shared_ptr<multiAgentExperience::library::core::transformer::DialogManagerTransformerFactory>
@@ -77,6 +78,12 @@ private:
     std::shared_ptr<multiAgentExperience::library::core::transformer ::StaticExperienceManagerTransformerFactory>
         m_staticExperienceManagerTransformerFactory;
     std::shared_ptr<MAXLifecycle> m_maxLifecycle;
+    std::shared_ptr<multiAgentExperience::library::utils::threading::Executor> m_executor;
+
+    std::set<std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface>> m_agentRegistrations;
+
+    /// Mutex to serialize access to m_agentRegistrations and other shared members
+    std::mutex m_mutex;
 };
 
 }  // namespace application

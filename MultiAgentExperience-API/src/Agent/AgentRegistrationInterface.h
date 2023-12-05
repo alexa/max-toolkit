@@ -27,7 +27,7 @@ namespace agent {
  * The Agent is not initialized until it is registered. Be aware that the MAX ActivityManagerInterface,
  * DialogManagerInterface and StaticExperienceManagerInterface are not usable until onReady is called.
  */
-class AgentRegistrationInterface : public std::enable_shared_from_this<AgentRegistrationInterface> {
+class AgentRegistrationInterface {
 public:
 
     /**

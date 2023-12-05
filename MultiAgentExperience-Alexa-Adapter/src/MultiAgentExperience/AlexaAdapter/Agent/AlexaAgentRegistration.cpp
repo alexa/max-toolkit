@@ -45,19 +45,18 @@ void AlexaAgentRegistration::onReady(
     // TODO: inject an AlexaControlsReceiver in the future
     auto alexaControlReceiver = std::make_shared<dialog::AlexaControlReceiver>(m_universalDeviceCommandsProvider);
     auto dialogRequester = std::make_shared<mediator::MAXDialogFocusRequester>(dialogManager, alexaControlReceiver);
-    m_mediator->onReady(activityRequester, dialogRequester);
-    onCompletionCallback->completed();
+    m_mediator->onReady(activityRequester, dialogRequester, onCompletionCallback);
 
     m_universalDeviceCommandsInvoker->onReady(dialogRequester);
 }
 
 ::multiAgentExperience::actor::ActorId AlexaAgentRegistration::getId() {
     //TODO: finalize alexa actor id with partner
-    return alexaClientSDK::multiAgentExperience::alexa::ALEXA_ACTOR_ID;
+    return ::multiAgentExperience::actor::ActorId(m_agentName);
 }
 
 std::string AlexaAgentRegistration::getName() {
-    return alexaClientSDK::multiAgentExperience::alexa::ALEXA_AGENT_NAME;
+    return m_agentName;
 }
 
 } // namespace agent

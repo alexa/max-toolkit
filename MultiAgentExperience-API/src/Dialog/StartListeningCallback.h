@@ -28,7 +28,7 @@ public:
     /**
      * Called when LISTENING state needs to continue after processing ControlTypes.
      */
-    void startListening() {
+    virtual void startListening() {
         m_continueListening.set_value();
     }
 private:

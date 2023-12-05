@@ -1,5 +1,0 @@
-@PACKAGE_INIT@
-
-include("${CMAKE_CURRENT_LIST_DIR}/MultiAgentExperience-CommandLine-OrchestratorTargets.cmake")
-
-check_required_components(MultiAgentExperience-CommandLine-Orchestrator)

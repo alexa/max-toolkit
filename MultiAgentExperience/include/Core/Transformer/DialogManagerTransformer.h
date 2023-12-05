@@ -38,6 +38,8 @@ public:
         std::shared_ptr<DialogControllerTransformerFactory> dialogControllerTransformerFactory,
         std::shared_ptr<CombinedDialogStateHandlersLifecycleFactory> dialogLifecycleFactory);
 
+    virtual ~DialogManagerTransformer();
+
     /// @name DialogManagerInterface method overrides.
     /// @{
     void request(std::shared_ptr<multiAgentExperience::dialog::DialogRequestInterface> request) override;

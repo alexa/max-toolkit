@@ -38,6 +38,8 @@ public:
 
     virtual const ActivityID finish(const ActivityRequestID activityRequestId);
 
+    virtual std::vector<ActivityRequestID> getActivityRequestIdsForActor(const actor::ActorId& actorId);
+
 private:
     enum class RemovalReason { DENIED, REMOVED, ABANDONED };
 

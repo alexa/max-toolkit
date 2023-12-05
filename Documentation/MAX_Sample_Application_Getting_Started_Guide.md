@@ -23,42 +23,37 @@ recommendations in the Multi-Agent Design Guide.
 
 In addition, the MAX Toolkit includes a patch that can be used to modify the [AVS Device SDK v1.26.0](https://developer.amazon.com/docs/alexa/avs-device-sdk/overview.html) to support a MAX-integrated Alexa device-side agent implementation.
 
-## Hardware and Software Requirements
+## Pre-requisites
 
-### Hardware
-- A computer supporting Ubuntu version 20.04 LTS or later (for fast build times)
+### Hardware and Operating System
+The build-script is tested on the below hardware
+- A computer running Ubuntu version 20.04 LTS
+- M1 Macbook running MacOS Ventura 13.5.2 
 
-### Software
 
-#### Operating System
-- Ubuntu operating system, version 20.04 LTS or later (for quicker build time)
-
-#### AVS Device SDK
-Make sure to download/build version 1.26. The accompanied build script will do this for you and you do not need to do this explicitly, if not required.
-
+### AVS Device SDK
+The accompanied build script downloads AVS Device SDK version 1.26. If you wish to download and build AVS Device SDK separately, you may do so using the below command. Please modify the build-script accordingly.
 ```
 git clone --single-branch https://github.com/alexa/avs-device-sdk.git -b v1.26.0
 ```
 
-##### Setup Guide
+While the build script builds and installs the AVS Device SDK, it is important to complete the setup to be able to interact with Alexa, including the steps to run and authorize the AVS SDK SampleApp. Take note of the full path to your updated AlexaClientSDKConfig.json file as it is required after the MAX Sample Application is built. The AVS Device SDK setup guides are linked below. 
+* [Ubuntu](https://developer.amazon.com/en-US/docs/alexa/avs-device-sdk-1-2x/ubuntu.html)
+* [Mac OS](https://developer.amazon.com/en-US/docs/alexa/avs-device-sdk-1-2x/mac-os.html)
 
-- Set up the AVS SDK following the instructions here:
-  - [Ubuntu](https://developer.amazon.com/en-US/docs/alexa/avs-device-sdk/ubuntu.html)
+### gRPC C++
+The MAX IPC framework leverages gRPC C++ v1.54.0. More information on installing gRPC can be found here - [Installing gRPC C++](https://grpc.io/docs/languages/cpp/quickstart/).
 
-You must fully complete the setup to be able to interact with Alexa, including the steps to run and authorize the AVS SDK sample app. Take note of the full path to your updated AlexaClientSDKConfig.json file as it is required after the MAX Sample Application is built.
+### Other software 
+* C++11 compatible compiler
+* GNU Make
+* CMake v3.10 or later
 
-#### Other software
-
-- A C++11 Compatible compiler
-- git
-- gnu make
-- cmake v3.10 or later
-
-## Setting up the MAX Sample Application
+## Build the MAX Sample Application
 
 Estimated time: 1-2 hours.
 
-This section provides step-by-step instructions to set up the MAX Sample Application on a Ubuntu PC using the provided **buildMAX.sh** script. When finished, you will have a working version of the MAX Sample Application to test the interactions with Alexa.
+This section provides step-by-step instructions to set up the MAX Sample Application using the provided `buildMAX.sh` script. When finished, you will have a working version of the MAX Sample Application to test the interactions with Alexa.
 
 To continue with the automated build process, open a terminal window.
 
@@ -70,9 +65,9 @@ You can use the following command to download the MAX Toolkit source code to the
 git clone git@github.com:alexa/max-toolkit.git $PATH_TO_MAX_TOOLKIT_SOURCE
 ```
 
-### Build the MAX Sample Application
+### Set important environment variables
 
-Running the build script is quite simple, it is located at `Scripts/buildMAX.sh` and can be run from any working directory. 
+To build the MAX Sample Application, simply run the Bash script located at - `Scripts/buildMAX.sh`. 
 
 Before running the script, it is mandatory to export few variables from the terminal. The script expects Curl and PortAudio to be installed on the system. The path to the lib and include folders for the mentioned packages can be set as below.
 
@@ -81,6 +76,7 @@ export CURL_LIBRARY_PATH=$PATH_TO_CURL_LIB_FOLDER
 export CURL_INCLUDE_DIR=$PATH_TO_CURL_INCLUDE_FOLDER
 export PORTAUDIO_LIB_PATH=$PATH_TO_PORTAUDIO_LIB_FOLDER
 export PORTAUDIO_INCLUDE_DIR=$PATH_TO_PORTAUDIO_INCLUDE_FOLDER
+export GRPC_INSTALL_PATH=$PATH_TO_GRPC_INSTALL_FOLDER
 ```
 
 Where:
@@ -88,133 +84,99 @@ Where:
 * `PATH_TO_CURL_INCLUDE_FOLDER` is the directory containing the CURL include files.
 * `PATH_TO_PORTAUDIO_LIB_FOLDER` is the directory containing the PortAudio library files.
 * `PATH_TO_PORTAUDIO_INCLUDE_FOLDER` is the directory containing the PortAudio include files.
+* `$PATH_TO_GRPC_INSTALL_FOLDER` is the directory where the gRPC C++ library is installed.
 
-Once the relevant paths are exported as indicated above, the build script is ready to be run. Following command can be executed from the Terminal.
+
+### Run the build script
+Once the relevant paths are exported as indicated above, the build script is ready to be run. The following command can be executed from the terminal.
 
 ```
-$PATH_TO_MAX_TOOLKIT_SOURCE/Scripts/buildMAX.sh 
+cd $PATH_TO_MAX_TOOLKIT_SOURCE/Scripts/
+./buildMAX.sh 
 ```
 
 Where `PATH_TO_MAX_TOOLKIT_SOURCE` is the directory containing the MAX Toolkit repository.
 
-Once the script finishes successfully, the MAX Sample Application `MultiAgentExperience-Integration-App` should be built in `$MAX_TOOLKIT_INSTALL_DIR/MultiAgentExperience-Integration-App/bin/MultiAgentExperience-Integration-App/`.
 
-***Note:*** All the build libraries and include files are copied to the `install` folder that will be generated within the directory MAX Toolkit is cloned into.
+Once the script finishes successfully, the required binaries should be available inside the `$PATH_TO_MAX_TOOLKIT_BUILD` and `$PATH_TO_MAX_TOOLKIT_INSTALL` directories. 
+* Where `$PATH_TO_MAX_TOOLKIT_BUILD` is the `$PATH_TO_MAX_TOOLKIT_SOURCE/build` directory.
+* Where `$PATH_TO_MAX_TOOLKIT_INSTALL` is the `$PATH_TO_MAX_TOOLKIT_SOURCE/install` directory.
 
-## Running the MAX Sample Application
 
-* Navigate to the MAX Sample Application build directory:
+## Executing the MAX Sample Application
 
+As of MAX Toolkit v2.0.0, the recommended approach of testing multi-agent features is via the MAX IPC framework. To test multi-agent features, MAX Toolkit v2.0.0 facilitates the creation of the following 3 processes:
+1. MAX process
+2. Alexa process (agent 1)
+3. Alexa process (agent 2)
+
+To run the MAX process, the MAX Sample Application binary located in the below directory, can be used.
 ```
-cd $MAX_TOOLKIT_INSTALL_DIR/MultiAgentExperience-Integration-App/bin/MultiAgentExperience-Integration-App/
-```
-
-### Setup AVS-SDK
-AVS SDK needs to be setup and `AlexaClientSDKConfig.json` should be generated before running the Sample App. Following link can be used for the setup.
-[Ubuntu - AVS SDK Setup](https://developer.amazon.com/en-US/docs/alexa/avs-device-sdk/ubuntu.html)
-
-### Export the library paths
-MAX Sample App will require the paths to libraries that have been built by the script. Run the following command based on the OS to achieve this, before running the sample app.
-
-* ***MAC OS:***
-```
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$PATH_TO_INSTALL_DIR/MultiAgentExperience/lib:$PATH_TO_INSTALL_DIR/MultiAgentExperience-Logger/lib:$PATH_TO_INSTALL_DIR/MultiAgentExperience-CommandLine-Orchestrator/lib:$PATH_TO_INSTALL_DIR/AVS-SDK/lib
+$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-Integration-App/bin/MultiAgentExperience-Integration-App
 ```
 
-Where `PATH_TO_INSTALL_DIR` is the directory where MAX toolkit has been installed by you / the build script.
-
-* ***Linux:***
+To run the Alexa process(es), the AVS SDK SampleApp binary is to be used. It is located here:
 ```
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PATH_TO_INSTALL_DIR/MultiAgentExperience/lib:$PATH_TO_INSTALL_DIR/MultiAgentExperience-Logger/lib:$PATH_TO_INSTALL_DIR/MultiAgentExperience-CommandLine-Orchestrator/lib:$PATH_TO_INSTALL_DIR/AVS-SDK/lib
+$PATH_TO_MAX_TOOLKIT_BUILD/AVS-SDK/SampleApp/src/SampleApp
 ```
 
-Where `PATH_TO_INSTALL_DIR` is the directory where MAX toolkit has been installed by you / the build script.
+Follow the instructions below to run all three processes.
 
-### Run the MAX Sample Application.
-From `$MAX_TOOLKIT_INSTALL_DIR/build/max-sample-app` you can run the Sample Application:
+### Setup AVS Device SDK
+AVS SDK needs to be setup and the `AlexaClientSDKConfig.json` should be generated before running the sample application. The following links can be used to complete the AVS Device SDK setup.
+* [Ubuntu](https://developer.amazon.com/en-US/docs/alexa/avs-device-sdk-1-2x/ubuntu.html)
+* [Mac OS](https://developer.amazon.com/en-US/docs/alexa/avs-device-sdk-1-2x/mac-os.html)
 
+Note: since we intend to run two Alexa processes, two `AlexaClientSDKConfig.json` files should be generated using two Amazon accounts.
+
+### Export library paths 
+The MAX Sample Application (and AVS SDK SampleApp) will require the paths to libraries that have been built by the script. Run the following command based on the OS to achieve this, before running the sample application.
+
+* Mac OS
 ```
-GST_PLUGIN_PATH=$PATH_TO_GSTREAMER ./MultiAgentExperience-Integration-App $PATH_TO_ALEXA_CLIENT_SDK_CONFIG_FILE/AlexaClientSDKConfig.json
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-Logger/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/AVS-SDK/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-ThreadExecutor/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-IPC/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-IPC-gRPC/lib
+```
+
+* Linux
+```
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-Logger/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/AVS-SDK/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-ThreadExecutor/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-IPC/lib:$PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-IPC-gRPC/lib
+```
+
+Where `$PATH_TO_MAX_TOOLKIT_INSTALL` is the directory where MAX toolkit has been installed by the build script.
+
+### Run the MAX Sample Application and AVS SDK SampleApp
+
+1. Run the MAX process
+```
+cd $PATH_TO_MAX_TOOLKIT_INSTALL/MultiAgentExperience-Integration-App/bin/
+./MultiAgentExperience-Integration-App MyDevice unix:///tmp/alexa1.sock unix:///tmp/max1.sock unix:///tmp/alexa2.sock unix:///tmp/max2.sock
+```
+
+2. Run the Alexa process (agent 1)
+```
+cd $PATH_TO_MAX_TOOLKIT_INSTALL/AVS-SDK/SampleApp/src
+GST_PLUGIN_PATH=$PATH_TO_GSTREAMER ./SampleApp $PATH_TO_ALEXA_CLIENT_SDK_CONFIG_FILE/AlexaClientSDKConfig.json DEBUG7 unix:///tmp/max1.sock unix:///tmp/alexa1.sock Alexa1
 ```
 
 Where:
-* `PATH_TO_GSTREAMER` is the directory containing the `Gstreamer` plugin.
-* `PATH_TO_ALEXA_CLIENT_SDK_CONFIG_FILE` is the directory containing `AlexaClientSDKConfig.json` file generated in previous section
-* 
-***Note:*** The GST_PLUGIN_PATH is used to override the `Gstreamer` plugin search path to `$PATH_TO_GSTREAMER`.
+* `PATH_TO_GSTREAMER` is the directory containing the `Gstreamer` plugin. The GST_PLUGIN_PATH is used to override the `Gstreamer` plugin search path to `$PATH_TO_GSTREAMER`.
+* `PATH_TO_ALEXA_CLIENT_SDK_CONFIG_FILE` is the directory containing `AlexaClientSDKConfig.json` file generated in the previous section
 
-***Note:*** If the agents do not respond to your queries, or you are unable to hear their responses please consult the **Troubleshooting** section below.
+3. Run the Alexa process (agent 2)
+```
+cd $PATH_TO_MAX_TOOLKIT_INSTALL/AVS-SDK/SampleApp/src
+GST_PLUGIN_PATH=$PATH_TO_GSTREAMER ./SampleApp $PATH_TO_ALEXA_CLIENT_SDK_CONFIG_FILE/AlexaClientSDKConfig.json DEBUG7 unix:///tmp/max2.sock unix:///tmp/alexa2.sock Alexa2
+```
 
-### Testing the MAX Sample Application
-
-* Activate Alexa by pressing `t 1` and then hitting enter.
-You should see a series of messages scrolling in your terminal window. One of these messages shows a Listening status. This status indicates that the wake word you spoke triggered Alexa.
+Note: the Unix Domain Sockets URIs represent the gRPC servers for the Alexas and MAX respectively. If the URIs are changed, they need to be updated in all commands accordingly.
 
 
-* Say *"Tell me a joke."*
+### Interacting with the Agents
+
+Once you run the MAX and the Alexa process(es), you can now experience multi-agent features.
+
+* Activate Alexa by pressing `t` and then hitting enter. Do this in the Alexa process.
+You should see a series of messages scrolling in your terminal window. One of these messages shows a Listening status. This status indicates that Alexa is listening to a user query.
+
+* Say "Tell me a joke."
 Alexa responds with a funny joke. You should see the text change from Listening to Thinking..., then Speaking.
-
-
-### Interactions
-
-You can trigger Alexa by using tap-to-talk.
-
-#### Interact with Alexa by using tap-to-talk
-
-Press 't 1'+Enter to talk to Alexa. This command simulates a Tap-to-Talk interaction.
-
-For example:
-*You* ('t 1'+Enter): "What's the weather like?"
-*Alexa*: "Right now in Portland, it's 71 degrees with sun..."
-
-## Troubleshooting Setup
-
-See also the [AVS Device SDK Troubleshooting Guide](https://developer.amazon.com/en-US/docs/alexa/avs-device-sdk/troubleshooting.html).
-
-#### If you receive the following error when running the MAX Sample Application:
-
-```
-MediaPlayer:handleBusMessageError:name=AudioMediaPlayer,source=audio_sink, error=Could not open audio device for playback. Device is being used by another application.,debug=gstalsasink.c(860)\: gst_alsasink_open ()\: /GstPipeline\:audio- pipeline/GstAlsaSink\:audio_sink\: hdmi 1
-```
-
-- Open the ~/.asoundrc file
-- nano ~/.asoundrc
-- Make a backup of the .asoundrc file and replace its contents with the below. The numerical device id's may vary: use the one assigned to the device you intend to use:
-
-```
-pcm.dmixed {
-     type dmix
-     ipc_key 1024
-     ipc_key_add_uid 0
-     slave.pcm "hw:2,0"
-}
- pcm.dsnooped {
-     type dsnoop
-     ipc_key 1025
-     slave.pcm "hw:2,0"
- }
- pcm.duplex {
-     type asym
-     playback.pcm "dmixed"
-     capture.pcm {
-         type plug
-             slave.pcm "hw:2,0"
-     }
- }
-
- # Instruct ALSA to use pcm.duplex as the default device
-pcm.!default {
-    type plug
-     slave.pcm "duplex"
-}
-ctl.!default {
-     type hw
-         card 2
- }
-```
-
-#### If audio is being routed to your HDMI monitor and the first few words of every Text-To-Speech response are precluded, enter the following command in a terminal window:
-
-```
-vcgencmd force_audio hdmi 1
-```

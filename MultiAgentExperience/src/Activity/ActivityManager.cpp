@@ -130,6 +130,16 @@ void ActivityManager::stopAllActivities() {
     }
 }
 
+void ActivityManager::clearActivitiesForActor(const actor::ActorId& actorId) {
+    LX(DEBUG3, "");
+
+    // Retrieve all the activities for the ActorId actor, and stop them
+    auto activityRequestIds = m_currentActivityRequests->getActivityRequestIdsForActor(actorId);
+    for (const auto& activityRequestId: activityRequestIds) {
+        finish(activityRequestId);
+    }
+}
+
 void ActivityManager::onTransitionToReady() {
     LX(DEBUG3, "");
     // Retrieve all activity requests

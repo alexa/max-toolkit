@@ -34,6 +34,16 @@ public:
         std::set<std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface>> agentRegistrations) = 0;
 
     /**
+     * Registers an agent with the manager, if it is not registered already.
+     *
+     * @param agentRegistration The agent to be registered
+     * @return true On success
+     * @return false On failure
+     */
+    virtual bool registerAgent(
+        std::shared_ptr<multiAgentExperience::agent::AgentRegistrationInterface> agentRegistration) = 0;
+
+    /**
      * @brief De-register an agent
      *
      * @param agent

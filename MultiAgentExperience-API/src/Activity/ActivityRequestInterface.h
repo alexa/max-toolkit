@@ -11,6 +11,7 @@
 #include "MultiAgentExperience/Activity/ActivityType.h"
 #include "MultiAgentExperience/Activity/ActivityHandlerInterface.h"
 #include "MultiAgentExperience/Activity/MixabilityType.h"
+#include "MultiAgentExperience/Utils/HashableInterface.h"
 
 namespace multiAgentExperience {
 namespace activity {
@@ -20,7 +21,7 @@ namespace activity {
  * the manager will need to determine if the request is grantable. A new ActivityRequestInterface is expected to be
  * used for each request.
  */
-class ActivityRequestInterface {
+class ActivityRequestInterface : public utils::HashableInterface {
 public:
     /**
      * Creates an activity request of the given ActivityType and handled by the given ActivityHandlerInterface.
@@ -44,21 +45,21 @@ public:
     /**
      * @return The type of the requested activity.
      */
-    ActivityType getType() const {
+    virtual ActivityType getType() const {
         return m_activityType;
     }
 
     /**
      * @return The handler for the requested activity.
      */
-    std::shared_ptr<ActivityHandlerInterface> getHandler() const {
+    virtual std::shared_ptr<ActivityHandlerInterface> getHandler() const {
         return m_handler;
     }
 
     /**
      * @return The MixabilityType for the requested activity.
      */
-    MixabilityType getMixabilityType() const {
+    virtual MixabilityType getMixabilityType() const {
         return m_mixabilityType;
     }
 

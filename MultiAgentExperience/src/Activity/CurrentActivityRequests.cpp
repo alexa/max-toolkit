@@ -98,6 +98,23 @@ const ActivityID CurrentActivityRequests::finish(
     }
 }
 
+std::vector<ActivityRequestID> CurrentActivityRequests::getActivityRequestIdsForActor(const actor::ActorId &actorId) {
+
+    std::unique_lock<std::mutex> lock(m_activeRequestsMutex);
+
+    std::vector<ActivityRequestID> activityRequestIds;
+    for (const auto& entry: m_activityRequests) {
+        auto activityRequest = entry.second;
+
+        // MAX internally represents dialogs as activities too. We don't want to return the ActivityRequestID for the dialog activity here
+        if (actorId == activityRequest->getActorId() && activityRequest->getActivityType() != ActivityType::DIALOG) {
+            activityRequestIds.push_back(activityRequest->getID());
+        }
+    }
+
+    return activityRequestIds;
+}
+
 CurrentActivityRequests::~CurrentActivityRequests() {
 }
 

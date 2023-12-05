@@ -1,0 +1,6 @@
+target_sources(
+        MultiAgentExperience-IPC-gRPC
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/GrpcTransportSender.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/GrpcTransportReceiver.cpp
+)

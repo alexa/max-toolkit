@@ -18,6 +18,10 @@ namespace common {
 
 class OnCompletionCallback : public multiAgentExperience::common::OnCompletionCallbackInterface {
 public:
+    OnCompletionCallback():
+        m_isCallbackExecuted{false} {
+    }
+
     /// Waits until the promise @c m_promise is executed by the agent via the @c completed method
     void wait();
 
@@ -34,7 +38,10 @@ private:
     std::promise<void> m_promise;
 
     /// Indicates whether the callback was executed by the agent
-    bool m_isCallbackExecuted = false;
+    bool m_isCallbackExecuted;
+
+    /// Mutex to serialize access to @c m_isCallbackExecuted
+    std::mutex m_mutex;
 };
 
 }  // namespace common

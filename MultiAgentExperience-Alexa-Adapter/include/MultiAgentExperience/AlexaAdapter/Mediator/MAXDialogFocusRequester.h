@@ -13,14 +13,13 @@
 #include <utility>
 
 #include <AVSCommon/SDKInterfaces/ExternalFocusMediatorCallbackInterface.h>
-
+#include <MultiAgentExperience/Dialog/DialogBargeInPriority.h>
 #include <MultiAgentExperience/Dialog/DialogManagerInterface.h>
 
 #include "MultiAgentExperience/AlexaAdapter/Dialog/AlexaControlReceiver.h"
 #include "MultiAgentExperience/AlexaAdapter/Dialog/AlexaDialogRequest.h"
+#include "MultiAgentExperience/AlexaAdapter/Mediator/MAXFocusMediatorCleanupCallback.h"
 #include "MultiAgentExperience/AlexaAdapter/Utils/FocusResult.h"
-
-#include "MultiAgentExperience/Dialog/DialogBargeInPriority.h"
 
 namespace alexaClientSDK {
 namespace multiAgentExperience {
@@ -34,7 +33,8 @@ public:
 
     virtual void request(
             const alexaClientSDK::avsCommon::avs::FocusRequest& focusRequest,
-            std::shared_ptr<std::promise<utils::FocusResult>> promise) = 0;
+            std::shared_ptr<std::promise<utils::FocusResult>> promise,
+            std::shared_ptr<MAXFocusMediatorCleanupCallback> cleanupCallback) = 0;
 
     virtual void requestThinking(std::shared_ptr<std::promise<utils::FocusResult>> promise) = 0;
 
@@ -56,7 +56,8 @@ public:
 
     void request(
             const alexaClientSDK::avsCommon::avs::FocusRequest& focusRequest,
-            std::shared_ptr<std::promise<utils::FocusResult>> promise) final;
+            std::shared_ptr<std::promise<utils::FocusResult>> promise,
+            std::shared_ptr<MAXFocusMediatorCleanupCallback> cleanupCallback) final;
 
     void requestThinking(std::shared_ptr<std::promise<utils::FocusResult>> promise);
 

@@ -24,7 +24,8 @@ void MAXDialogFocusRequester::initialize(
 
 void MAXDialogFocusRequester::request(
         const avsCommon::avs::FocusRequest &focusRequest,
-        std::shared_ptr<std::promise<utils::FocusResult>> promise) {
+        std::shared_ptr<std::promise<utils::FocusResult>> promise,
+        std::shared_ptr<MAXFocusMediatorCleanupCallback> cleanupCallback) {
     if (auto mediatorCallbacks = m_mediatorCallbacks.lock()) {
         auto dialogState = getFocusRequestDialogStateAffinity(focusRequest);
         if (!m_activeDialogRequest || m_activeDialogRequest->isFinished()) {
@@ -37,7 +38,8 @@ void MAXDialogFocusRequester::request(
                             promise,
                             m_controlReceiver,
                             m_mediatorCallbacks,
-                            dialogBargeInPriority);
+                            dialogBargeInPriority,
+                            cleanupCallback);
 
             ACSDK_DEBUG3(LX(__func__).m("Creating a new dialog request"));
 
@@ -46,6 +48,11 @@ void MAXDialogFocusRequester::request(
             ACSDK_DEBUG3(LX(__func__)
                 .m("Transitioning current dialog to a new state")
                 .d("dialogState", dialogStateToString(dialogState)));
+
+            // If we are transitioning the current dialog to a new state, we should update the cleanupCallback that is
+            // stored in the current activeDialogRequest. This is because the entry in the focusRequestBuffer was updated
+            // in the acquireFocus call.
+            m_activeDialogRequest->updateCleanupCallback(cleanupCallback);
             m_activeDialogRequest->transitionTo(focusRequest.focusRequestId, promise, dialogState);
         }
     } else {

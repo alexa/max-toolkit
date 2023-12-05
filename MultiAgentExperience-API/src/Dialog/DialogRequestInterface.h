@@ -13,6 +13,7 @@
 
 #include "DialogBargeInPriority.h"
 #include "DialogControllerInterface.h"
+#include "MultiAgentExperience/Utils/HashableInterface.h"
 
 namespace multiAgentExperience {
 namespace dialog {
@@ -22,7 +23,7 @@ namespace dialog {
  * and any request which is started is also stopped. Following these lifecycle callbacks allows Agents to interact with
  * any other multi-agent experiences.
  */
-class DialogRequestInterface {
+class DialogRequestInterface : public utils::HashableInterface {
 public:
 
     /**

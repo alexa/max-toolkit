@@ -28,7 +28,11 @@ void MAXLifecycle::addObserver(std::shared_ptr<MAXLifecycleObserverInterface> ob
 void MAXLifecycle::transitionToReady() {
     LX(DEBUG3, "");
 
-    // Change the state to READY
+    if (m_state == MAXState::READY) {
+        LX(DEBUG3, "MAXState is already set to READY");
+        return;
+    }
+
     m_state = MAXState::READY;
 
     for (const auto& weakObserver: m_observers) {

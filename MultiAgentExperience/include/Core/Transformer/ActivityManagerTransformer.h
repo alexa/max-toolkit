@@ -31,6 +31,8 @@ public:
         std::shared_ptr<multiAgentExperience::library::activity::ActivityManager> activityManager,
         std::shared_ptr<ActivityRequestTransformerFactory> requestTransformerFactory);
 
+    virtual ~ActivityManagerTransformer();
+
     /// @name ActivityManagerInterface method overrides.
     /// @{
     void request(std::shared_ptr<multiAgentExperience::activity::ActivityRequestInterface> request) override;

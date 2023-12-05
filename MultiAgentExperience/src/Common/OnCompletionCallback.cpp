@@ -23,12 +23,20 @@ void OnCompletionCallback::wait() {
 
 bool OnCompletionCallback::isCallbackExecuted() {
     LX(DEBUG3, "");
+    std::unique_lock<std::mutex> lock(m_mutex);
     return m_isCallbackExecuted;
 }
 
 void OnCompletionCallback::completed() {
     LX(DEBUG3, "");
-    m_isCallbackExecuted = true;
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        if (m_isCallbackExecuted) {
+            LX(DEBUG3, "Callback already executed");
+            return;
+        }
+        m_isCallbackExecuted = true;
+    }
     m_promise.set_value();
 }
 

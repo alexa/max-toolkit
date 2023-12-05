@@ -1,5 +1,23 @@
 # Change Log
 
+## v2.0.0
+MAX Toolkit v2.0.0 is a major release that now allows Agents to communicate with MAX via Inter-Process Communication (IPC). This is facilitated by the MAX IPC framework which leverages gRPC C++ to provide IPC capabilities. 
+
+### MAX-API Changes
+* Added a new `HashableInterface` which is used by the `ActivityRequestInterface` and the `DialogRequestInterface` (required for use cases introduced with IPC).
+* Methods in `StartListeningCallback` and `ActivityRequestInterface` are made virtual.
+* A new `registerAgent()` API is introduced in the `AgentManagerInterface`, to support single agent registration use cases like agent process crash recovery.
+
+### Enhancements
+* The MAX IPC framework is introduced along with two major packages - `MultiAgentExperience-IPC` and `MultiAgentExperience-IPC-gRPC`. The MAX IPC framework facilitates inter-process communication between the MAX process and any agent processes, and enhances security by isolating processes.  
+* Added a new package - `MultiAgentExperience-ThreadExecutor`.
+* The MAX SampleApplication is updated to incorporate the MAX IPC framework. Read more here - [MAX_IPC.md](Documentation/MAX_IPC.md).
+
+### Issue fixes
+* Added a fix to address an issue which did not allow Alexa alerts to be stoppable after a power-cycling the device.
+
+### Known Issues
+
 ## v1.3.0
 
 ### MAX-API Changes
@@ -10,7 +28,7 @@ APIs supported by MAX Library are provided in a separate MAX-API Directory with 
 ### Enhancements
 * Added the ability to temporarily store any activity/dialog requests in a buffer, during agent re-registration, when the MAX process recovers from a crash. After all agents have executed their OnCompletionCallback (received in `AgentRegistrationInterface::onReady`), the requests stored in the buffer will be processed in a priority order based on the activity type of the request. This helps restore correct state of activities/dialogs when after a crash.
 * Changed the set of shared ControlTypes given to an agent during a dialog from “any controls available for other actors” to “only the controls for foreground experiences of other actors”.
-* The logger has been extracted out of `MAX` and bundled separately in this package named `MultiAgentExperience-Logger`. This doesn’t disturb any client operation but helps make the code more modular.
+* The logger has been extracted out of `MAX` and bundled separately in this package named `MultiAgentExperience-Logger`. This doesn't disturb any client operation but helps make the code more modular.
 * Added MAX integration for pending notifications.
 * Added MAX integration for 'Do Not Disturb'.
 * Added integration for UDC in Alexa Cloud and AVS-SDK.

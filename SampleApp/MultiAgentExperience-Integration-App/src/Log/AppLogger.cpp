@@ -8,9 +8,14 @@
 #include <Log/AppLogger.h>
 #include <sstream>
 
+#include "AVSCommon/Utils/Logger/ThreadMoniker.h"
+#include "AVSCommon/Utils/Logger/Level.h"
+
 namespace multiAgentExperience {
 namespace integrationApp {
 namespace log {
+
+using namespace alexaClientSDK::avsCommon::utils::logger;
 
 std::map<std::string, multiAgentExperience::utils::Log::Level> AppLogger::m_componentLevels;
 
@@ -20,6 +25,32 @@ AppLogger& AppLogger::instance() {
     static AppLogger instance;
 
     return instance;
+}
+
+Level getAVSLoggerLevel(multiAgentExperience::utils::Log::Level level) {
+    switch(level) {
+        //NONE, CRITICAL, ERROR, WARN, INFO, DEBUG0, DEBUG1, DEBUG2, DEBUG3
+        case multiAgentExperience::utils::Log::Level::NONE:
+            return Level::NONE;
+        case multiAgentExperience::utils::Log::Level::CRITICAL:
+            return Level::CRITICAL;
+        case multiAgentExperience::utils::Log::Level::ERROR:
+            return Level::ERROR;
+        case multiAgentExperience::utils::Log::Level::WARN:
+            return Level::WARN;
+        case multiAgentExperience::utils::Log::Level::INFO:
+            return Level::INFO;
+        case multiAgentExperience::utils::Log::Level::DEBUG0:
+            return Level::DEBUG0;
+        case multiAgentExperience::utils::Log::Level::DEBUG1:
+            return Level::DEBUG1;
+        case multiAgentExperience::utils::Log::Level::DEBUG2:
+            return Level::DEBUG2;
+        case multiAgentExperience::utils::Log::Level::DEBUG3:
+            return Level::DEBUG3;
+        default:
+            return Level::UNKNOWN;
+    }
 }
 
 void AppLogger::logHandler(
@@ -50,7 +81,8 @@ void AppLogger::logHandler(
     ss << metadata.componentName << ":" << metadata.moduleName << ":" << metadata.functionName << " " << text
        << std::endl;
 
-    std::cout << ss.str();
+    //std::cout << ss.str();
+    m_logger->emit(getAVSLoggerLevel(level), std::chrono::system_clock::now(), ThreadMoniker::getThisThreadMoniker().c_str(), ss.str().c_str());
 }
 
 void AppLogger::setComponentLevel(const std::string& componentName, multiAgentExperience::utils::Log::Level level) {

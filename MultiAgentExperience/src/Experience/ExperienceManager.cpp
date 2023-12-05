@@ -242,6 +242,18 @@ void ExperienceManager::updateStaticExperiences(
     notifyObservers();
 }
 
+void ExperienceManager::clearStaticExperiencesForActor(const actor::ActorId& actorId) {
+    LX(DEBUG3, "");
+
+    std::lock_guard<std::mutex> guard(m_mutex);
+
+    if (m_staticExperiencesMap.find(actorId.get()) != m_staticExperiencesMap.end()) {
+        m_staticExperiencesMap.erase(actorId.get());
+    }
+
+    notifyObservers();
+}
+
 }  // namespace experience
 }  // namespace library
 }  // namespace multiAgentExperience

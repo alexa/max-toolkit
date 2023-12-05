@@ -22,6 +22,7 @@ struct AlexaChannelNames {
     static const std::string CONTENT;
 
     static bool isValidName(const std::string& candidate);
+    static bool isActivityChannel(const std::string& candidate);
 };
 
 } // namespace alexa

@@ -1,0 +1,12 @@
+target_sources(
+        MultiAgentExperience-ThreadExecutor
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/MultiAgentExperience/Thread/Executor/Threading/AggregatedPowerResourceManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MultiAgentExperience/Thread/Executor/Threading/Executor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MultiAgentExperience/Thread/Executor/Threading/PowerMonitor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MultiAgentExperience/Thread/Executor/Threading/PowerResource.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MultiAgentExperience/Thread/Executor/Threading/TaskThread.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MultiAgentExperience/Thread/Executor/Threading/ThreadMoniker.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MultiAgentExperience/Thread/Executor/Threading/ThreadPool.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MultiAgentExperience/Thread/Executor/Threading/WorkerThread.cpp
+        )

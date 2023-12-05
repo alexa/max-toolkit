@@ -1,6 +1,8 @@
 # Integrating an Agent with MAX Library
 ## Introduction
-An Agent uses the Multi Agent Experience (MAX) Library v1.3.0 to collaborate with other Agents to create a cohesive experience for customers. Each part of MAX Library helps facilitate this by providing tools Agents can use to help enable a multi-agent experience. The library also surfaces multi-agent features such as client-side support for Universal Device Commands, which enable experiences that are not possible without device side inter-agent coordination. This document describes the capabilities an Agent has available through the MAX Library, as well as suggestions of what any Agent will have to consider during integration.
+The Multi-Agent Experience (MAX) Library provides tools that Agents can use to help enable a multi-agent experience. The library also surfaces multi-agent features such as client-side support for Universal Device Commands, which enable experiences that are not possible without device side inter-agent coordination. This document describes the capabilities an Agent has available through the MAX Library, as well as suggestions of what any Agent will have to consider during integration.
+
+
 
 ### Terms
 Many of the concepts in this document are defined in the [VII Multi-Agent Design Guide](https://developer.amazon.com/en-US/alexa/voice-interoperability/design-guide) but also expanded upon in this document. For concepts which are explored in depth in this document, there will be a reference to the relevant section. For other terms see the [Glossary](Glossary.md).
@@ -282,7 +284,7 @@ namespace dialog {
  * and any request which is started is also stopped. Following these lifecycle callbacks allows Agents to interact with
  * any other multi-agent experiences.
  */
-class DialogRequestInterface {
+class DialogRequestInterface : public utils::HashableInterface {
 public:
 
     /**

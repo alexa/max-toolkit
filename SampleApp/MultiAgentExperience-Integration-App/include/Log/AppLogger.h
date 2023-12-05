@@ -11,10 +11,13 @@
 #include <map>
 #include <MultiAgentExperience/Utils/Log.h>
 #include <memory>
+#include "AVSCommon/Utils/Logger/ConsoleLogger.h"
 
 namespace multiAgentExperience {
 namespace integrationApp {
 namespace log {
+
+using namespace alexaClientSDK::avsCommon::utils::logger;
 
 class AppLogger : public utils::Log {
 public:
@@ -22,6 +25,8 @@ public:
     static const std::string MAX_APP_COMPONENT_NAME;
     /// Our definition for the MAX Library component name to be used within Log metadata.
     static const std::string MAX_LIB_COMPONENT_NAME;
+    /// Our definition for the Computer Agent component name to be used within Log metadata.
+    static const std::string COMPUTER_AGENT_COMPONENT_NAME;
 
     /**
      * Method to acquire the logger instance, of which there must be only one in a given application.
@@ -52,6 +57,8 @@ private:
 
     /// Mutex to contol access to the log levels.
     std::mutex m_mutex;
+
+    std::shared_ptr<Logger> m_logger = ConsoleLogger::instance();
 };
 } // namespace log
 } // namespace integrationApp
